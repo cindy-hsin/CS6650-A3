@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Servlet-1.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Servlet/target/Servlet-1.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

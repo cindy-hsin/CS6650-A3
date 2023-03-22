@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="MatchConsumer-1.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/MatchConsumer/target/MatchConsumer-1.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

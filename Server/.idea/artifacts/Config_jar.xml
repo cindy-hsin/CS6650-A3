@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Config:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Config_jar</output-path>
+    <root id="archive" name="Config.jar">
+      <element id="module-output" name="Config" />
+    </root>
+  </artifact>
+</component>

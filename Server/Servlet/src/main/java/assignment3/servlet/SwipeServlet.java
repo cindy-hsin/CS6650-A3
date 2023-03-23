@@ -1,3 +1,4 @@
+package assignment3.servlet;
 
 import assignment3.config.constant.LoadTestConfig;
 import assignment3.config.constant.RMQConnectionInfo;
@@ -23,7 +24,7 @@ import java.io.IOException;
 
 import com.google.gson.Gson;
 
-@WebServlet(name = "SwipeServlet", value = "/swipe")
+@WebServlet(name = "assignment3.servlet.SwipeServlet", value = "/swipe")
 public class SwipeServlet extends HttpServlet {
 
   private RMQChannelPool pool;

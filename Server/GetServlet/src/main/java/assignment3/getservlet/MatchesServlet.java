@@ -1,3 +1,5 @@
+package assignment3.getservlet;
+
 import assignment3.config.datamodel.SwipeDetails;
 import assignment3.servlet.datamodel.Matches;
 import assignment3.servlet.datamodel.ResponseMsg;
@@ -13,7 +15,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(name = "MatchesServlet", value = "/matches")
+@WebServlet(name = "assignment3.getservlet.MatchesServlet", value = "/matches")
 public class MatchesServlet extends HttpServlet {
 /** TODO: Use Dao to connect and query from DB?
  * TODO: Does this Servlet need to be multi-threaded? Do we also need to create a DB connection pool,

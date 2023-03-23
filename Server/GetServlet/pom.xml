@@ -21,6 +21,19 @@
   </properties>
 
   <dependencies>
+
+    <dependency>
+      <groupId>assignment3</groupId>
+      <artifactId>Config</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>assignment3</groupId>
+      <artifactId>Servlet</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>

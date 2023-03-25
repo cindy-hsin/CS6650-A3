@@ -2,23 +2,14 @@ package part2latency;
 
 
 import config.LoadTestConfig;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import thread.GetThread;
+import thread.PostThread;
 
 
 public class MainPart2 {
@@ -49,8 +40,9 @@ public class MainPart2 {
 //    }
 
     // Start POST threads
+    final AtomicInteger numTakenReqs = new AtomicInteger(0);
     for (int i = 0; i < LoadTestConfig.NUM_THREADS; i++) {
-      Runnable thread = new SendRequestAverageThread(postLatch, numSuccessfulPostReqs, numFailedPostReqs, postRecordsBuffer);
+      Runnable thread = new PostThread(postLatch, numSuccessfulPostReqs, numFailedPostReqs, numTakenReqs, postRecordsBuffer);
       new Thread(thread).start();
     }
 

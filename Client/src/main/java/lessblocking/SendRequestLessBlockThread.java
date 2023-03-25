@@ -70,7 +70,7 @@ public class SendRequestLessBlockThread extends AbsSendRequestThread implements 
    * NOTE: Compared to the sendSingleRequest method in AbsSendRequestThread class, which is used in the Average Model and Producer-Consumer Model,
    * this implementation don't have any "blockings", since it doesn't MODIFY any global objects.(e.g. counters:  numSuccessfulReqs, numFailedReqs)
    */
-  @Override
+
   public boolean sendSingleRequest(PostRequest request, SwipeApi swipeApi, AtomicInteger numSuccessfulReqs, AtomicInteger numFailedReqs) {
     int retry = LoadTestConfig.MAX_RETRY;
 

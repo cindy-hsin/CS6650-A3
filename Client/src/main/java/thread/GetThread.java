@@ -5,6 +5,8 @@ import io.swagger.client.ApiClient;
 import io.swagger.client.ApiException;
 import io.swagger.client.ApiResponse;
 import io.swagger.client.api.MatchesApi;
+import io.swagger.client.api.StatsApi;
+import io.swagger.client.model.MatchStats;
 import io.swagger.client.model.Matches;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -30,33 +32,53 @@ public class GetThread extends AbsSendRequestThread {
 
   @Override
   public void run() {
-    ApiClient apiClient = new ApiClient();
-    apiClient.setBasePath(LoadTestConfig.URL);//TODO: Change to Get servlet's url. Also change Post threads' url.
+    MatchesApi matchesApi = new MatchesApi(new ApiClient());
+    matchesApi.getApiClient().setBasePath(LoadTestConfig.URL); //TODO: Change to Get Match servlet's url. Also change Post threads' url.
 
-    MatchesApi matchesApi = new MatchesApi(apiClient);
+    StatsApi statsApi = new StatsApi(new ApiClient());
+    statsApi.getApiClient().setBasePath(LoadTestConfig.URL); //TODO: Change to Get Stats servlet's url
+
     // Keep sending GET reqs until all PostThreads terminate. -> this.latch(which is the postLatch in Main)'s count == 0
+    int apiType = 1;    // Mix up Matches and Stats requests
     while (this.latch.getCount() == 0) {
+      Long batchStartTime = System.currentTimeMillis();
       for (int j = 0; j < NUM_REQ_BATCH; j++) {
-        Record record = this.sendSingleRequest(matchesApi);
+        Record record = this.sendSingleRequest(matchesApi, statsApi, apiType);
         this.records.add(record);
+        apiType *= -1;
+      }
+      Long batchEndTime = System.currentTimeMillis();
+
+      try {
+        Thread.sleep(GAP_TIME_MS - (batchStartTime - batchEndTime));
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
       }
     }
   }
 
-  private Record sendSingleRequest(MatchesApi matchesApi) { // TODO: num of successful reqs?
+  private Record sendSingleRequest(MatchesApi matchesApi, StatsApi statsApi, int apiType) {
     int retry = LoadTestConfig.MAX_RETRY;
-    String userId = String.valueOf(ThreadLocalRandom.current().nextInt(MIN_ID, MAX_USER_ID+1)); //TODO: verify with server side(DB side)
+    String userId = String.valueOf(ThreadLocalRandom.current().nextInt(MIN_ID, MAX_USER_ID+1)); //TODO: userId range: verify with server side(DB side)
 
     long startTime = System.currentTimeMillis();
     long endTime;
 
+    int statusCode;
     while (retry > 0) {
       try {
-        ApiResponse<Matches> res = matchesApi.matchesWithHttpInfo(userId);
-
+        if (apiType == 1) {
+          ApiResponse<Matches> res = matchesApi.matchesWithHttpInfo(userId);
+          statusCode = res.getStatusCode();
+          System.out.println("MatchList for userId " + userId + ": " + res.getData().getMatchList()); //getMatchList());
+        } else {
+          ApiResponse<MatchStats> res = statsApi.matchStatsWithHttpInfo(userId);
+          statusCode = res.getStatusCode();
+          System.out.println("Stats for userId " + userId + ": " + "likes -> " + res.getData().getNumLlikes() + "dislikes -> " + res.getData().getNumDislikes());
+        }
         endTime = System.currentTimeMillis();
-        System.out.println("MatchList for userId " + userId + ": " + res.getData().getMatchList()); //getMatchList());
-        return new Record(startTime, RequestType.GET, (int)(endTime-startTime), res.getStatusCode(), Thread.currentThread().getName());
+        numSuccessfulReqs.getAndIncrement();
+        return new Record(startTime, RequestType.GET, (int)(endTime-startTime), statusCode, Thread.currentThread().getName());
       } catch (ApiException e) {
         System.out.println("Retry GET request");
         retry --;
@@ -70,4 +92,7 @@ public class GetThread extends AbsSendRequestThread {
 
     return null;
   }
+
+
+
 }

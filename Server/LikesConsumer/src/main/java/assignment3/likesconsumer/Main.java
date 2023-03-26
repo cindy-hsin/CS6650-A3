@@ -22,6 +22,9 @@ public class Main {
 
     Connection connection = connectionFactory.newConnection();
 
+    // TODO: Create MongoClient (connection pool)
+
+
     // Integer[0]: num of likes, Integer[1]: num of dislikes
     ConcurrentHashMap<String, int[]> map = new ConcurrentHashMap();
 

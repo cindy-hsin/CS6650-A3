@@ -52,6 +52,9 @@ public class MatchesServlet extends HttpServlet {
 
     String userId = urlValidationRes.getParam();
 
+
+
+
     // TODO: Connect and Query DB with userId.
     //  If any Exception is thrown when connecting and querying DB -> catch Exception, response.setStatus('500');
     //  If userId doesn't have a match record in DB: '400' response;

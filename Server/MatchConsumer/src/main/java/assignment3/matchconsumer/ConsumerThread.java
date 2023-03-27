@@ -35,7 +35,7 @@ import org.bson.conversions.Bson;
 // MatchConsumerThread
 public class ConsumerThread implements Runnable{
 
-  private static final String QUEUE_NAME = "match";
+  private static final String QUEUE_NAME = "write_to_db";
   private static final int BATCH_UPDATE_SIZE = 100;
   private static final Gson gson = new Gson();
   private Connection connection;
@@ -59,7 +59,7 @@ public class ConsumerThread implements Runnable{
       // Durable, Non-exclusive(Can be shared across different channels),
       // Non-autoDelete, classic queue.
       channel.queueDeclare(QUEUE_NAME, true, false, false, new HashMap<>(Map.of("x-queue-type", "classic")));
-      channel.queueBind(QUEUE_NAME, RMQConnectionInfo.EXCHANGE_NAME, "");   // No Routing key in fanout mode
+      channel.queueBind(QUEUE_NAME, RMQConnectionInfo.EXCHANGE_NAME, "write_to_db");
 
       // Max one message per consumer (to guarantee even distribution)
       channel.basicQos(BATCH_UPDATE_SIZE);

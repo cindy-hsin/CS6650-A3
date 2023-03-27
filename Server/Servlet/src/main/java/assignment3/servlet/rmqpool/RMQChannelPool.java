@@ -28,7 +28,7 @@ public class RMQChannelPool {
         // Declare a durable exchange
         // NOTE: Declare exchanges when creating channels in Channel pool,
         // instead of declaring them when sending each msg, will be much faster.
-        channel.exchangeDeclare(RMQConnectionInfo.EXCHANGE_NAME, "fanout", true);
+        channel.exchangeDeclare(RMQConnectionInfo.EXCHANGE_NAME, "direct", true);
         this.pool.put(channel);
       } catch (IOException | InterruptedException ex) {
         Logger.getLogger(RMQChannelPool.class.getName()).log(Level.SEVERE, null, ex);

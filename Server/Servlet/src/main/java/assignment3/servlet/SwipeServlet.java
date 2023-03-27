@@ -174,7 +174,7 @@ public class SwipeServlet extends HttpServlet {
     try {
       Channel channel = this.pool.borrowObject();
       // Publish a persistent message. Route key is ignored ("") in fanout mode.
-      channel.basicPublish(RMQConnectionInfo.EXCHANGE_NAME, "", MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes("UTF-8"));
+      channel.basicPublish(RMQConnectionInfo.EXCHANGE_NAME, "write_to_db", MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes("UTF-8"));
       // TODO: Add Publisher Confirm
       this.pool.returnObject(channel);
       return true;

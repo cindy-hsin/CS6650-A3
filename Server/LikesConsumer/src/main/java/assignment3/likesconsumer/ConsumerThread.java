@@ -50,7 +50,7 @@ public class ConsumerThread implements Runnable{
         String swiperId = swipeDetails.getSwiper();
 
         this.map.putIfAbsent(swiperId, new int[] {0,0});
-        if (swipeDetails.getDirection() == SwipeDetails.RIGHT) {
+        if (swipeDetails.getDirection().equals(SwipeDetails.RIGHT)) {
           this.map.get(swiperId)[0] ++;
         } else {
           this.map.get(swiperId)[1] ++;

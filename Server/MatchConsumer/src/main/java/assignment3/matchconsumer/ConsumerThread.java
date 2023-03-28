@@ -36,13 +36,13 @@ import org.bson.conversions.Bson;
 public class ConsumerThread implements Runnable{
 
   private static final String QUEUE_NAME = "write_to_db";
-  private static final int BATCH_UPDATE_SIZE = 100;
+  private static final int BATCH_UPDATE_SIZE = 2;
   private static final Gson gson = new Gson();
   private Connection connection;
   private MongoClient mongoClient;
 
-  private Map<String, Set<String>> matchesMap = new HashMap<>();
-  private Map<String, int[]> statsMap = new HashMap<>();
+  private Map<Integer, Set<Integer>> matchesMap = new HashMap<>();
+  private Map<Integer, int[]> statsMap = new HashMap<>();
 
 
 //  private ConcurrentHashMap<String, Set<String>> map;
@@ -102,63 +102,62 @@ public class ConsumerThread implements Runnable{
 //      }
 
 
-      List bulkOps = new ArrayList<>();
-      Bson filter = Filters.eq("_id", 888);
-      // setOnInsert: If the document already exists, this field will not be modified.
-      // Only if a new document is inserted as a result of an update operation, will the field be specified the given value.
-      Bson insertIfAbsent = Updates.combine(Updates.setOnInsert("likes", 0),
-          Updates.setOnInsert("dislikes", 0));
-      Bson incUpdate = Updates.combine(
-          Updates.inc("likes", 1),
-          Updates.inc("dislikes", 4));
-      // TODO: check if no document matches, will a new document be created with likes == 0 and dislikes == 0?
-
-      UpdateOneModel <Document> insertIfAbsentModel = new UpdateOneModel<>(filter, insertIfAbsent,
-          new UpdateOptions().upsert(true));
-      UpdateOneModel <Document> incUpdateModel = new UpdateOneModel<>(filter, incUpdate,
-          new UpdateOptions().upsert(false));
-      // false -> Ensure that if no document matches the filter, a new document won't be inserted
-      // with the specified value (bc the specified value is the amount to increment, not an initial value.)
-
-      bulkOps.add(insertIfAbsentModel);
-      bulkOps.add(incUpdateModel);
-
-    try {
-      BulkWriteResult result = statsCollection.bulkWrite(bulkOps);
-      System.out.println("thread ID = " + Thread.currentThread().getId() + "\nBulk write to Stats:" +
-          "\ninserted: " + result.getInsertedCount() +
-          "\nupdated: " + result.getModifiedCount() +
-          "\ndeleted: " + result.getDeletedCount() +
-          "\nHashmap id count: " + this.matchesMap.size());
-    } catch (MongoException me) {
-      System.out.println("thread ID = " + Thread.currentThread().getId() + ": Bulk write to Stats failed due to an error: " + me);
-    }
+//      List bulkOps = new ArrayList<>();
+//      Bson filter = Filters.eq("_id", 888);
+//      // setOnInsert: If the document already exists, this field will not be modified.
+//      // Only if a new document is inserted as a result of an update operation, will the field be specified the given value.
+//      Bson insertIfAbsent = Updates.combine(Updates.setOnInsert("likes", 0),
+//          Updates.setOnInsert("dislikes", 0));
+//      Bson incUpdate = Updates.combine(
+//          Updates.inc("likes", 1),
+//          Updates.inc("dislikes", 4));
+//      // TODO: check if no document matches, will a new document be created with likes == 0 and dislikes == 0?
+//
+//      UpdateOneModel <Document> insertIfAbsentModel = new UpdateOneModel<>(filter, insertIfAbsent,
+//          new UpdateOptions().upsert(true));
+//      UpdateOneModel <Document> incUpdateModel = new UpdateOneModel<>(filter, incUpdate,
+//          new UpdateOptions().upsert(false));
+//      // false -> Ensure that if no document matches the filter, a new document won't be inserted
+//      // with the specified value (bc the specified value is the amount to increment, not an initial value.)
+//
+//      bulkOps.add(insertIfAbsentModel);
+//      bulkOps.add(incUpdateModel);
+//
+//    try {
+//      BulkWriteResult result = statsCollection.bulkWrite(bulkOps);
+//      System.out.println("thread ID = " + Thread.currentThread().getId() + "\nBulk write to Stats:" +
+//          "\ninserted: " + result.getInsertedCount() +
+//          "\nupdated: " + result.getModifiedCount() +
+//          "\ndeleted: " + result.getDeletedCount() +
+//          "\nHashmap id count: " + this.matchesMap.size());
+//    } catch (MongoException me) {
+//      System.out.println("thread ID = " + Thread.currentThread().getId() + ": Bulk write to Stats failed due to an error: " + me);
+//    }
 
       // ======= HARD-CODED TEST DB WRITE ====
 
-
-
-
-
       final int[] batch_cnt = {0};
-
 
       DeliverCallback deliverCallback = (consumerTag, delivery) -> {
         String message = new String(delivery.getBody(), "UTF-8");
         // Store data into a thread-safe hashmap
         SwipeDetails swipeDetails = gson.fromJson(message, SwipeDetails.class);
-        String swiperId = swipeDetails.getSwiper();
-        String swipeeId = swipeDetails.getSwipee();
+        System.out.println("dir:" + swipeDetails.getDirection());
+        Integer swiperId = Integer.valueOf(swipeDetails.getSwiper());
+        Integer swipeeId = Integer.valueOf(swipeDetails.getSwipee());
 
-        if (swipeDetails.getDirection() == SwipeDetails.RIGHT) {
+        this.statsMap.putIfAbsent(swiperId, new int[] {0,0});
+        if (swipeDetails.getDirection().equals(SwipeDetails.RIGHT)) {
           this.matchesMap.putIfAbsent(swiperId, new HashSet<>());
           this.matchesMap.get(swiperId).add(swipeeId);
+          this.statsMap.get(swiperId)[0] ++;
+        } else {
+          this.statsMap.get(swiperId)[1] ++;
         }
-
+        System.out.println( "Callback thread ID = " + Thread.currentThread().getId() + " Received '" + message + "'");
         batch_cnt[0] ++;
 
         if (batch_cnt[0] < BATCH_UPDATE_SIZE) {
-          System.out.println( "Callback thread ID = " + Thread.currentThread().getId() + " Received '" + message + "'");
           return;
         }
 
@@ -186,10 +185,18 @@ public class ConsumerThread implements Runnable{
 
   private void updateMatchesCollection(MongoCollection<Document> collection) {
     List bulkOps = new ArrayList<>();
+    System.out.println("Matches map size:" + this.matchesMap.size()); //TODO!!! Check matchesMap size
 
-    for (Map.Entry<String, Set<String>> entry: this.matchesMap.entrySet()) {
-      String swiperId = entry.getKey();
-      Set<String> matches = entry.getValue();
+    // Edge case: if none of the swipe directions is right(<--> like <--> match).
+    // then there is no match at all.
+    // So matchesMap will be empty -> bulkOps will be empty -> DB write error
+    if (this.matchesMap.size() == 0) {
+      return;
+    }
+
+    for (Map.Entry<Integer, Set<Integer>> entry: this.matchesMap.entrySet()) {
+      Integer swiperId = entry.getKey();
+      Set<Integer> matches = entry.getValue();
 
       Bson filter = Filters.eq("_id", swiperId);
       Bson initUpdate = Updates.setOnInsert("matches",  new ArrayList<>());
@@ -205,6 +212,8 @@ public class ConsumerThread implements Runnable{
       bulkOps.add(initUpdateModel);
       bulkOps.add(addUpdateModel);
     }
+    System.out.println("maps size:" + matchesMap.size() + " " + statsMap.size());
+
 
     try {
       BulkWriteResult result = collection.bulkWrite(bulkOps);
@@ -221,8 +230,8 @@ public class ConsumerThread implements Runnable{
   private void updateStatsCollection(MongoCollection<Document> collection) {
     List bulkOps = new ArrayList<>();
 
-    for (Map.Entry<String, int[]> entry: this.statsMap.entrySet()) {
-      String swiperId = entry.getKey();
+    for (Map.Entry<Integer, int[]> entry: this.statsMap.entrySet()) {
+      Integer swiperId = entry.getKey();
       int[] stats = entry.getValue();
       int likes = stats[0];
       int dislikes = stats[1];

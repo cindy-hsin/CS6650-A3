@@ -1,11 +1,12 @@
 package assignment3.matchconsumer;
 
-import static assignment3.config.constant.LoadTestConfig.MATCH_CONSUMER_THREAD_NUM;
+import static assignment3.config.constant.LoadTestConfig.CONSUMER_THREAD_NUM;
 
 import assignment3.config.constant.MongoConnectionInfo;
 import assignment3.config.constant.RMQConnectionInfo;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -15,6 +16,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.bson.Document;
 public class Main {
@@ -31,10 +33,17 @@ public class Main {
     Connection rmqConn = rmqConnFactory.newConnection();
 
     ConnectionString mongoUri = new ConnectionString(MongoConnectionInfo.uri);
-    MongoClientSettings settings = MongoClientSettings.builder().applyConnectionString(mongoUri).build();
+    MongoClientSettings settings = MongoClientSettings.builder()
+        .applyConnectionString(mongoUri)
+        .applyToConnectionPoolSettings(builder ->
+            builder
+                .maxConnectionIdleTime(60, TimeUnit.SECONDS)
+                .maxSize(200)
+                .maxWaitTime(10, TimeUnit.SECONDS))
+        .build();
 
-    try (MongoClient mongoClient = MongoClients.create(settings)) {
-
+    try {
+      MongoClient mongoClient = MongoClients.create(settings);
       // TODO: Do we need to lock the collection to avoid non-deterministic result on the documents?
       //  -> When multiple threads need to modify the same document...Or the operations
       //  chatgpt: update operations in MongoDB are atomic at the document level,
@@ -45,12 +54,14 @@ public class Main {
       //  .
       //  BUT ALSO: By default, MongoDB executes bulk write operations one-by-one in the specified order (i.e. serially)
       //  -> Seems to be ok?
-      for (int i = 0; i < MATCH_CONSUMER_THREAD_NUM; i++) {
+      for (int i = 0; i < CONSUMER_THREAD_NUM; i++) {
         Runnable thread = new ConsumerThread(rmqConn, mongoClient);
         new Thread(thread).start();
       }
 
       System.out.println("Closed all MatchConsumer Threads.");
+    } catch (MongoException me) {
+      System.out.println("Failed to create mongoClient: " + me);
     }
 
 

@@ -1,4 +1,4 @@
-package assignment3.servlet;
+package assignment3.getservlet;
 
 public class StatsServlet {
 

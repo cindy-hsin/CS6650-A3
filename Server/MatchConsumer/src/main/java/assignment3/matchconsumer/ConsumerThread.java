@@ -70,6 +70,76 @@ public class ConsumerThread implements Runnable{
       MongoCollection<Document> matchesCollection = database.getCollection(MongoConnectionInfo.MATCH_COLLECTION);
       MongoCollection<Document> statsCollection = database.getCollection(MongoConnectionInfo.STATS_COLLECTION);
 
+      System.out.println("MongoDB connected!");
+      // ======= HARD-CODED TEST DB WRITE ====
+//      List bulkOps = new ArrayList<>();
+//      Bson filter = Filters.eq("_id", 888);
+//      Bson initUpdate = Updates.setOnInsert("matches",  new ArrayList<>());
+//      Bson addUpdate = Updates.addEachToSet("matches", Arrays.asList(1,3,5,7,9));
+//
+//       UpdateOneModel<Document> initUpdateModel = new UpdateOneModel<>(filter, initUpdate,
+//          new UpdateOptions().upsert(true));
+//      UpdateOneModel<Document> addUpdateModel = new UpdateOneModel<>(filter, addUpdate,
+//          new UpdateOptions().upsert(false));
+//
+//      // false -> Ensure that if no document matches the filter, a new document won't be inserted
+//      // with the specified value (bc the specified value is not an initial value -> empty list.)
+//      // TODO: check if no document matches, will a new document be created with matches == empty array?
+//      //  Check if it's okay to drop the initUpdate for an array type field?
+//      //
+//      bulkOps.add(initUpdateModel);
+//      bulkOps.add(addUpdateModel);
+//
+//      try {
+//        BulkWriteResult result = matchesCollection.bulkWrite(bulkOps);
+//        System.out.println("thread ID = " + Thread.currentThread().getId() + "\nBulk write to Matches:" +
+//            "\ninserted: " + result.getInsertedCount() +
+//            "\nupdated: " + result.getModifiedCount() +
+//            "\ndeleted: " + result.getDeletedCount() +
+//            "\nHashmap id count: " + this.matchesMap.size());
+//      } catch (MongoException me) {
+//        System.out.println("thread ID = " + Thread.currentThread().getId() + ": Bulk write to Matches failed due to an error: " + me);
+//      }
+
+
+      List bulkOps = new ArrayList<>();
+      Bson filter = Filters.eq("_id", 888);
+      // setOnInsert: If the document already exists, this field will not be modified.
+      // Only if a new document is inserted as a result of an update operation, will the field be specified the given value.
+      Bson insertIfAbsent = Updates.combine(Updates.setOnInsert("likes", 0),
+          Updates.setOnInsert("dislikes", 0));
+      Bson incUpdate = Updates.combine(
+          Updates.inc("likes", 1),
+          Updates.inc("dislikes", 4));
+      // TODO: check if no document matches, will a new document be created with likes == 0 and dislikes == 0?
+
+      UpdateOneModel <Document> insertIfAbsentModel = new UpdateOneModel<>(filter, insertIfAbsent,
+          new UpdateOptions().upsert(true));
+      UpdateOneModel <Document> incUpdateModel = new UpdateOneModel<>(filter, incUpdate,
+          new UpdateOptions().upsert(false));
+      // false -> Ensure that if no document matches the filter, a new document won't be inserted
+      // with the specified value (bc the specified value is the amount to increment, not an initial value.)
+
+      bulkOps.add(insertIfAbsentModel);
+      bulkOps.add(incUpdateModel);
+
+    try {
+      BulkWriteResult result = statsCollection.bulkWrite(bulkOps);
+      System.out.println("thread ID = " + Thread.currentThread().getId() + "\nBulk write to Stats:" +
+          "\ninserted: " + result.getInsertedCount() +
+          "\nupdated: " + result.getModifiedCount() +
+          "\ndeleted: " + result.getDeletedCount() +
+          "\nHashmap id count: " + this.matchesMap.size());
+    } catch (MongoException me) {
+      System.out.println("thread ID = " + Thread.currentThread().getId() + ": Bulk write to Stats failed due to an error: " + me);
+    }
+
+      // ======= HARD-CODED TEST DB WRITE ====
+
+
+
+
+
       final int[] batch_cnt = {0};
 
 
@@ -83,9 +153,6 @@ public class ConsumerThread implements Runnable{
         if (swipeDetails.getDirection() == SwipeDetails.RIGHT) {
           this.matchesMap.putIfAbsent(swiperId, new HashSet<>());
           this.matchesMap.get(swiperId).add(swipeeId);
-          //TODO: Write(insert or update) to twinder.Matches collection. Batch process??
-          // Aggregate 100 swipes, store temprarily in a data structure (map?),
-          // then use MongoDB's bulkWrite to update or insert a new document into twinder.Matches collectio
         }
 
         batch_cnt[0] ++;
@@ -118,7 +185,7 @@ public class ConsumerThread implements Runnable{
   }
 
   private void updateMatchesCollection(MongoCollection<Document> collection) {
-    List<WriteModel> bulkOps = new ArrayList<>();
+    List bulkOps = new ArrayList<>();
 
     for (Map.Entry<String, Set<String>> entry: this.matchesMap.entrySet()) {
       String swiperId = entry.getKey();
@@ -128,21 +195,19 @@ public class ConsumerThread implements Runnable{
       Bson initUpdate = Updates.setOnInsert("matches",  new ArrayList<>());
       Bson addUpdate = Updates.addEachToSet("matches", new ArrayList<>(matches));
 
-      UpdateOneModel <Document> initUpdateModel = new UpdateOneModel<>(filter, initUpdate,
+      UpdateOneModel<Document> initUpdateModel = new UpdateOneModel<>(filter, initUpdate,
           new UpdateOptions().upsert(true));
-      UpdateOneModel <Document> addUpdateModel = new UpdateOneModel<>(filter, addUpdate,
+      UpdateOneModel<Document> addUpdateModel = new UpdateOneModel<>(filter, addUpdate,
           new UpdateOptions().upsert(false));
       // false -> Ensure that if no document matches the filter, a new document won't be inserted
       // with the specified value (bc the specified value is not an initial value -> empty list.)
-      // TODO: check if no document matches, will a new document be created with matches == empty array?
-      //  Check if it's okay to drop the initUpdate for an array type field?
-      //
+
       bulkOps.add(initUpdateModel);
       bulkOps.add(addUpdateModel);
     }
 
     try {
-      BulkWriteResult result = collection.bulkWrite((List<? extends WriteModel<? extends Document>>) bulkOps);
+      BulkWriteResult result = collection.bulkWrite(bulkOps);
       System.out.println("thread ID = " + Thread.currentThread().getId() + "\nBulk write to Matches:" +
           "\ninserted: " + result.getInsertedCount() +
           "\nupdated: " + result.getModifiedCount() +
@@ -154,7 +219,7 @@ public class ConsumerThread implements Runnable{
   }
 
   private void updateStatsCollection(MongoCollection<Document> collection) {
-    List<WriteModel> bulkOps = new ArrayList<>();
+    List bulkOps = new ArrayList<>();
 
     for (Map.Entry<String, int[]> entry: this.statsMap.entrySet()) {
       String swiperId = entry.getKey();
@@ -184,7 +249,7 @@ public class ConsumerThread implements Runnable{
     }
 
     try {
-      BulkWriteResult result = collection.bulkWrite((List<? extends WriteModel<? extends Document>>) bulkOps);
+      BulkWriteResult result = collection.bulkWrite(bulkOps);
       System.out.println("thread ID = " + Thread.currentThread().getId() + "\nBulk write to Stats:" +
           "\ninserted: " + result.getInsertedCount() +
           "\nupdated: " + result.getModifiedCount() +

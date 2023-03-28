@@ -1,6 +1,5 @@
 package assignment3.likesconsumer;
 
-import static assignment3.config.constant.LoadTestConfig.LIKES_CONSUMER_THREAD_NUM;
 
 import assignment3.config.constant.RMQConnectionInfo;
 import com.rabbitmq.client.Connection;
@@ -26,13 +25,13 @@ public class Main {
 
 
     // Integer[0]: num of likes, Integer[1]: num of dislikes
-    ConcurrentHashMap<String, int[]> map = new ConcurrentHashMap();
-
-    for (int i = 0; i < LIKES_CONSUMER_THREAD_NUM; i++) {
-      Runnable thread = new ConsumerThread(connection, map);
-      new Thread(thread).start();
-    }
-
-    System.out.println("Closed all LikesConsumer Threads.");
+//    ConcurrentHashMap<String, int[]> map = new ConcurrentHashMap();
+//
+//    for (int i = 0; i < LIKES_CONSUMER_THREAD_NUM; i++) {
+//      Runnable thread = new ConsumerThread(connection, map);
+//      new Thread(thread).start();
+//    }
+//
+//    System.out.println("Closed all LikesConsumer Threads.");
   }
 }

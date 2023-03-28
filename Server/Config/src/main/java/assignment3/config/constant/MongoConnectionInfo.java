@@ -15,7 +15,8 @@ public class MongoConnectionInfo {
 
   //TODO: Add connection Options like maxPoolsize, either here in uri, or in Consumer's Main class
   // using builder pattern.
-  public static final String uri = "mongodb://" + USER_NAME + ":" + PASSWORD +
-      "@" + HOST_NAME + ":" + PORT;
-
+//  public static final String uri = "mongodb://" + USER_NAME + ":" + PASSWORD +
+//      "@" + HOST_NAME + ":" + PORT;
+  public static final String uri = "mongodb://" +
+       HOST_NAME + ":" + PORT;
 }

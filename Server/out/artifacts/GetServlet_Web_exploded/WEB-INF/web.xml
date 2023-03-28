@@ -5,14 +5,12 @@
          version="4.0">
 
   <servlet>
-    <servlet-name>SwipeServlet</servlet-name>
-    <servlet-class>assignment3.servlet.SwipeServlet</servlet-class>
+    <servlet-name>assignment3.getservlet.MatchesServlet</servlet-name>
+    <servlet-class>assignment3.getservlet.assignment3.getservlet.MatchesServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>SwipeServlet</servlet-name>
-    <url-pattern>/swipe/*</url-pattern>
+    <servlet-name>assignment3.getservlet.MatchesServlet</servlet-name>
+    <url-pattern>/matches/*</url-pattern>
   </servlet-mapping>
-
-
 </web-app>

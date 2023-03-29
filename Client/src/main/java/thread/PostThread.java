@@ -41,7 +41,7 @@ public class PostThread extends AbsSendRequestThread implements Runnable{
   @Override
   public void run() {
     ApiClient apiClient = new ApiClient();
-    apiClient.setBasePath(LoadTestConfig.URL);
+    apiClient.setBasePath(LoadTestConfig.SWIPE_URL);
 
     SwipeApi swipeApi = new SwipeApi(apiClient);
     List<Record> records = new ArrayList<>();

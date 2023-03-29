@@ -1,4 +1,4 @@
-package assignment3.servlet.util;
+package assignment3.config.util;
 
 public class Pair {
   private boolean isUrlPathValid;

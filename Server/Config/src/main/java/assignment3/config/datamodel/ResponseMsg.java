@@ -1,4 +1,4 @@
-package assignment3.servlet.datamodel;
+package assignment3.config.datamodel;
 
 public class ResponseMsg {
   private String message;

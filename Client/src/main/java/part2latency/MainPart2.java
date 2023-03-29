@@ -35,17 +35,15 @@ public class MainPart2 {
     startPostTime = System.currentTimeMillis();
     endPostTime = null;
 
-//    if (new File(ALL_RECORDS_CSV).isFile()) {
-//      throw new CsvExistException(ALL_RECORDS_CSV);
-//    }
 
     // Start POST threads
-    final AtomicInteger numTakenReqs = new AtomicInteger(0);
-    for (int i = 0; i < LoadTestConfig.NUM_THREADS; i++) {
-      Runnable thread = new PostThread(postLatch, numSuccessfulPostReqs, numFailedPostReqs, numTakenReqs, postRecordsBuffer);
-      new Thread(thread).start();
-    }
+//    final AtomicInteger numTakenReqs = new AtomicInteger(0);
+//    for (int i = 0; i < LoadTestConfig.NUM_THREADS; i++) {
+//      Runnable thread = new PostThread(postLatch, numSuccessfulPostReqs, numFailedPostReqs, numTakenReqs, postRecordsBuffer);
+//      new Thread(thread).start();
+//    }
 
+    System.out.println("Before get thread");
     // Start the Get thread
     new Thread(new GetThread(postLatch, numSuccessfulGetReqs, numFailedGetReqs, getRecords)).start();
 

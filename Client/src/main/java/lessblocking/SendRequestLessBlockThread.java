@@ -31,7 +31,7 @@ public class SendRequestLessBlockThread extends AbsSendRequestThread implements 
   @Override
   public void run() {
     ApiClient apiClient = new ApiClient();
-    apiClient.setBasePath(LoadTestConfig.URL);
+    apiClient.setBasePath(LoadTestConfig.SWIPE_URL);
 
     SwipeApi swipeApi = new SwipeApi(apiClient);
 

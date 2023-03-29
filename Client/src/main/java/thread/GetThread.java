@@ -20,7 +20,7 @@ public class GetThread extends AbsSendRequestThread {
   private static final int NUM_REQ_BATCH = 5;
   private static final int GAP_TIME_MS = 1000;
   private static final int MIN_ID = 1;
-  private static final int MAX_USER_ID = 1000000;
+  private static final int MAX_USER_ID = 50000;
 
   private final List<Record> records;
 
@@ -33,15 +33,19 @@ public class GetThread extends AbsSendRequestThread {
   @Override
   public void run() {
     MatchesApi matchesApi = new MatchesApi(new ApiClient());
-    matchesApi.getApiClient().setBasePath(LoadTestConfig.URL); //TODO: Change to Get Match servlet's url. Also change Post threads' url.
+    matchesApi.getApiClient().setBasePath(LoadTestConfig.GET_URL); //TODO: Change to Get Match servlet's url. Also change Post threads' url.
 
     StatsApi statsApi = new StatsApi(new ApiClient());
-    statsApi.getApiClient().setBasePath(LoadTestConfig.URL); //TODO: Change to Get Stats servlet's url
+    statsApi.getApiClient().setBasePath(LoadTestConfig.GET_URL); //TODO: Change to Get Stats servlet's url
+    System.out.println("Set base path");
 
     // Keep sending GET reqs until all PostThreads terminate. -> this.latch(which is the postLatch in Main)'s count == 0
     int apiType = 1;    // Mix up Matches and Stats requests
-    while (this.latch.getCount() == 0) {
+
+
+    while (this.latch.getCount() > 0) {
       Long batchStartTime = System.currentTimeMillis();
+      System.out.println("batchStartTime: " + batchStartTime);
       for (int j = 0; j < NUM_REQ_BATCH; j++) {
         Record record = this.sendSingleRequest(matchesApi, statsApi, apiType);
         this.records.add(record);
@@ -68,10 +72,13 @@ public class GetThread extends AbsSendRequestThread {
     while (retry > 0) {
       try {
         if (apiType == 1) {
+          System.out.println("matches api");
           ApiResponse<Matches> res = matchesApi.matchesWithHttpInfo(userId);
           statusCode = res.getStatusCode();
           System.out.println("MatchList for userId " + userId + ": " + res.getData().getMatchList()); //getMatchList());
-        } else {
+        }
+        else {
+          System.out.println("stats api");
           ApiResponse<MatchStats> res = statsApi.matchStatsWithHttpInfo(userId);
           statusCode = res.getStatusCode();
           System.out.println("Stats for userId " + userId + ": " + "likes -> " + res.getData().getNumLlikes() + "dislikes -> " + res.getData().getNumDislikes());
@@ -80,7 +87,7 @@ public class GetThread extends AbsSendRequestThread {
         numSuccessfulReqs.getAndIncrement();
         return new Record(startTime, RequestType.GET, (int)(endTime-startTime), statusCode, Thread.currentThread().getName());
       } catch (ApiException e) {
-        System.out.println("Retry GET request");
+        System.out.println("RETRY GET Request");
         retry --;
         if (retry == 0) {
           endTime = System.currentTimeMillis();

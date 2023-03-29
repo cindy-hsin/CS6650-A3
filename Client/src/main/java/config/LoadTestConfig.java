@@ -18,7 +18,9 @@ public class LoadTestConfig {
   // local: http://localhost:8080/A1-SpringBootServer_war
 
 
-  public static final String URL = "http://A2-AppLoadBalancer-1646955486.us-west-2.elb.amazonaws.com:8080/Servlet_war";
+  public static final String SWIPE_URL = "http://A2-AppLoadBalancer-1646955486.us-west-2.elb.amazonaws.com:8080/Servlet_war";
+  public static final String GET_URL = "http://localhost:8080/GetServlet_Web_exploded";
+
 
 }
 //34.208.113.22

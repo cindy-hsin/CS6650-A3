@@ -71,28 +71,55 @@ public class GetThread extends AbsSendRequestThread {
     int statusCode;
     while (retry > 0) {
       try {
-        if (apiType == 1) {
-          System.out.println("matches api");
+//        if (apiType == 1) {
           ApiResponse<Matches> res = matchesApi.matchesWithHttpInfo(userId);
           statusCode = res.getStatusCode();
-          System.out.println("MatchList for userId " + userId + ": " + res.getData().getMatchList()); //getMatchList());
-        }
-        else {
-          System.out.println("stats api");
-          ApiResponse<MatchStats> res = statsApi.matchStatsWithHttpInfo(userId);
-          statusCode = res.getStatusCode();
-          System.out.println("Stats for userId " + userId + ": " + "likes -> " + res.getData().getNumLlikes() + "dislikes -> " + res.getData().getNumDislikes());
-        }
+
+          System.out.println("GET: MatchList for userId " + userId + ": " + res.getData().getMatchList());
+
+          //  System.out.println("GET: MatchList for userId"  + userId + ": " + "Status Code: " + res.getStatusCode() + " Msg: " + res.getData());
+
+
+//        }
+//        else {
+//          ApiResponse<MatchStats> res = statsApi.matchStatsWithHttpInfo(userId);
+//          statusCode = res.getStatusCode();
+//          System.out.println("GET: Stats for userId " + userId + ": " + "likes -> " + res.getData().getNumLlikes() + "dislikes -> " + res.getData().getNumDislikes());
+//        }
         endTime = System.currentTimeMillis();
         numSuccessfulReqs.getAndIncrement();
         return new Record(startTime, RequestType.GET, (int)(endTime-startTime), statusCode, Thread.currentThread().getName());
       } catch (ApiException e) {
-        System.out.println("RETRY GET Request");
-        retry --;
+        String apiTypeStr = apiType == 1 ? "Match" : "Stats";
+
+        if (e.getCode() == 400) {
+          System.out.println("GET: Bad Request for userId " + userId + ": " + "Status Code: " + e.getCode() + " " + e.getResponseBody());
+          endTime = System.currentTimeMillis();
+          numSuccessfulReqs.getAndIncrement();
+          return new Record(startTime, RequestType.GET, (int) (endTime - startTime), e.getCode(),
+              Thread.currentThread().getName());
+        } else if (e.getCode() == 404) {
+          System.out.println("GET: " + apiTypeStr + " for userId " + userId + ": " + "Status Code: " + e.getCode()
+              + " " + e.getResponseBody());
+          endTime = System.currentTimeMillis();
+          numSuccessfulReqs.getAndIncrement();
+          return new Record(startTime, RequestType.GET, (int) (endTime - startTime), e.getCode(),
+              Thread.currentThread().getName());
+        }
+
+        // If it's not "User Not Found" error or "Bad Request" error-> REAL FAIL!(network error) Failed to send the request. Need to RETRY.
+
+        System.out.println(
+            "RETRY GET Request. Type: " + apiTypeStr + " userID:" + userId + "err: " + e.getCode()
+                + " " + e.getResponseBody());
+        retry--;
         if (retry == 0) {
           endTime = System.currentTimeMillis();
           numFailedReqs.getAndIncrement();
-          return new Record(startTime, RequestType.GET, (int)(endTime-startTime), e.getCode(), Thread.currentThread().getName());
+          System.out.println(
+              "FAIL GET Request after all retries. Type: " + apiTypeStr + " userID:" + userId);
+          return new Record(startTime, RequestType.GET, (int) (endTime - startTime), e.getCode(),
+              Thread.currentThread().getName());
         }
       }
     }
@@ -100,6 +127,5 @@ public class GetThread extends AbsSendRequestThread {
     return null;
   }
 
-
-
 }
+

@@ -57,7 +57,7 @@ public class PostThread extends AbsSendRequestThread implements Runnable{
       while (curRoundNumOfSuccessfulReqs < taken) {
         Record record = this.sendSingleRequest(PostRequestGenerator.generateSingleRequest(), swipeApi, this.numSuccessfulReqs, this.numFailedReqs);
 
-        if (record.getResponseCode() == LoadTestConfig.SUCCESS_CODE) {
+        if (record.getResponseCode() == LoadTestConfig.POST_SUCCESS_CODE) {
           curRoundNumOfSuccessfulReqs++;
           localNumOfSuccessfulReqs++;
           // System.out.println("Thread:" + Thread.currentThread().getName() + " Successfully sent a request. " + " Local Success cnt:" + localNumOfSuccessfulReqs + " Taken cnt:" + this.numTakenReqs.get());
@@ -100,11 +100,12 @@ public class PostThread extends AbsSendRequestThread implements Runnable{
 
         endTime = System.currentTimeMillis();
         numSuccessfulReqs.getAndIncrement();
-        System.out.println("Thread:" + Thread.currentThread().getName() + " Success cnt:" + numSuccessfulReqs.get() + " Status:" + res.getStatusCode());
+        System.out.println("POST: Thread:" + Thread.currentThread().getName() + " Success cnt:" + numSuccessfulReqs.get() + " Status:" + res.getStatusCode() + "Msg:"+ res.getData());
         return new Record(startTime, RequestType.POST, (int)(endTime-startTime), res.getStatusCode(), Thread.currentThread().getName());
       } catch (ApiException e) {
-        System.out.println("Failed to send request: " + e.getCode() + ": " + e.getResponseBody() + ".request.Request details:"
-            + request.getSwipeDir() + " " + request.getBody().toString() + ". Go retry");
+//        System.out.println("Failed to send request: " + e.getCode() + ": " + e.getResponseBody() + ".request.Request details:"
+//            + request.getSwipeDir() + " " + request.getBody().toString() + ". Go retry");
+        System.out.println("RETRY POST Request");
         retry --;
         if (retry == 0) {
           endTime = System.currentTimeMillis();

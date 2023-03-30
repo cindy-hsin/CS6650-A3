@@ -2,9 +2,11 @@ package config;
 
 public class LoadTestConfig {
   public static final int NUM_TOTAL_REQUESTS = 500000;
-  public static final int NUM_THREADS = 150;    // Change this value for experiment
+  public static final int NUM_THREADS = 10;    // Change this value for experiment
 
-  public static final int SUCCESS_CODE = 201;
+  public static final int POST_SUCCESS_CODE = 201;
+
+  public static final int GET_SUCCESS_CODE = 200;
 
   public static final int MAX_RETRY = 5;
 
@@ -18,7 +20,7 @@ public class LoadTestConfig {
   // local: http://localhost:8080/A1-SpringBootServer_war
 
 
-  public static final String SWIPE_URL = "http://A2-AppLoadBalancer-1646955486.us-west-2.elb.amazonaws.com:8080/Servlet_war";
+  public static final String SWIPE_URL = "http://localhost:8080/Servlet_war";
   public static final String GET_URL = "http://localhost:8080/GetServlet_Web_exploded";
 
 

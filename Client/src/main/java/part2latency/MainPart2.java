@@ -14,8 +14,7 @@ import thread.PostThread;
 
 public class MainPart2 {
   private static final int QUEUE_CAPACITY = LoadTestConfig.NUM_THREADS;
-  //private static final String ALL_RECORDS_CSV = "AllRecords.csv";
-  //private static final String START_TIME_GROUP_CSV = "StartTimeGroupedRequests.csv";
+
   private static final RunningMetrics postMetrics = new RunningMetrics();
   private static final RunningMetrics getMetrics = new RunningMetrics();
 
@@ -37,13 +36,13 @@ public class MainPart2 {
 
 
     // Start POST threads
-//    final AtomicInteger numTakenReqs = new AtomicInteger(0);
+    final AtomicInteger numTakenReqs = new AtomicInteger(0);
 //    for (int i = 0; i < LoadTestConfig.NUM_THREADS; i++) {
 //      Runnable thread = new PostThread(postLatch, numSuccessfulPostReqs, numFailedPostReqs, numTakenReqs, postRecordsBuffer);
 //      new Thread(thread).start();
 //    }
 
-    System.out.println("Before get thread");
+    System.out.println(" ========= Start! GET thread =========");
     // Start the Get thread
     new Thread(new GetThread(postLatch, numSuccessfulGetReqs, numFailedGetReqs, getRecords)).start();
 

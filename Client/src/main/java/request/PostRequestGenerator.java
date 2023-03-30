@@ -6,8 +6,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class PostRequestGenerator {
   private static final String[] SWIPE_VALUES = new String[]{"left", "right"};
   private static final int MIN_ID = 1;
-  private static final int MAX_SWIPER_ID = 5000;
-  private static final int MAX_SWIPEE_ID = 1000000;
+  private static final int MAX_SWIPER_ID = 50000;
+  private static final int MAX_SWIPEE_ID = 50000;
 
   private static final int COMMENT_LENGTH = 256;
 

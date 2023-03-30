@@ -117,7 +117,8 @@ public class RunningMetrics {
 
   public void updateRunningMetrics(List<Record> records) {
     for (Record record: records) {
-      if (record.getResponseCode() == LoadTestConfig.SUCCESS_CODE) {
+      if (record.getResponseCode() == LoadTestConfig.POST_SUCCESS_CODE ||
+          record.getResponseCode() == LoadTestConfig.GET_SUCCESS_CODE) {
         int curLatency = record.getLatency();
         this.setMinLatency(Math.min(curLatency, this.getMinLatency()));
         this.setMaxLatency(Math.max(curLatency, this.getMaxLatency()));

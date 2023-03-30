@@ -85,7 +85,7 @@ public class MatchesServlet extends AbstractGetServlet {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       response.getOutputStream().print(gson.toJson(responseMsg));
       response.getOutputStream().flush();
-      System.out.println("Respond to Client: User Not Found:" + swiperId);
+      System.out.println("MatchesServlet Respond to Client: User Not Found:" + swiperId);
     } else {
       List<Integer> matchesList = doc.get("matches", listDocClazz);
       if (matchesList.size() > MAX_MATCH_SIZE) {

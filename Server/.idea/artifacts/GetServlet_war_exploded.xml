@@ -1,0 +1,18 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="GetServlet:war exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/GetServlet_war_exploded</output-path>
+    <root id="root">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="GetServlet" />
+          <element id="module-output" name="Config" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.10.1" />
+          <element id="library" level="project" name="Maven: org.mongodb:mongo-java-driver:3.12.10" />
+        </element>
+      </element>
+      <element id="javaee-facet-resources" facet="GetServlet/web/Web" />
+    </root>
+  </artifact>
+</component>

@@ -62,7 +62,7 @@ public class StatsServlet extends AbstractGetServlet {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       response.getOutputStream().print(gson.toJson(responseMsg));
       response.getOutputStream().flush();
-      System.out.println("Respond to Client: User Not Found:" + swiperId);
+      System.out.println("MatchesServlet Respond to Client: User Not Found:" + swiperId);
     } else {
       int likes = doc.getInteger("likes");
       int dislikes = doc.getInteger("dislikes");

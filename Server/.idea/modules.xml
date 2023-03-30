@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Config/Config.iml" filepath="$PROJECT_DIR$/Config/Config.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MatchConsumer/Consumer.iml" filepath="$PROJECT_DIR$/MatchConsumer/Consumer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GetServlet/GetServlet.iml" filepath="$PROJECT_DIR$/GetServlet/GetServlet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PostServlet/PostServlet.iml" filepath="$PROJECT_DIR$/PostServlet/PostServlet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Server.iml" filepath="$PROJECT_DIR$/Server.iml" />
+    </modules>
+  </component>
+</project>

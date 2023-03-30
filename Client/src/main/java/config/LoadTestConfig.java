@@ -20,8 +20,8 @@ public class LoadTestConfig {
   // local: http://localhost:8080/A1-SpringBootServer_war
 
 
-  public static final String SWIPE_URL = "http://localhost:8080/Servlet_war_exploded";
-  public static final String GET_URL = "http://localhost:8080/GetServlet_Web_exploded";
+  public static final String SWIPE_URL = "http://localhost:8080/PostServlet_war_exploded";
+  public static final String GET_URL = "http://localhost:8080/GetServlet_war_exploded";
 
 
 }

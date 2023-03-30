@@ -10,9 +10,9 @@
   </parent>
 
   <groupId>assignment3</groupId>
-  <artifactId>GetServlet</artifactId>
+  <artifactId>PostServlet</artifactId>
   <packaging>jar</packaging>
-  <name>GetServlet</name>
+  <name>PostServlet</name>
 
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
@@ -21,7 +21,6 @@
   </properties>
 
   <dependencies>
-
     <dependency>
       <groupId>assignment3</groupId>
       <artifactId>Config</artifactId>
@@ -36,17 +35,29 @@
     </dependency>
 
     <dependency>
+      <groupId>com.rabbitmq</groupId>
+      <artifactId>amqp-client</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
     </dependency>
-
-    <!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
     <dependency>
-      <groupId>org.mongodb</groupId>
-      <artifactId>mongo-java-driver</artifactId>
-      <version>3.12.10</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-pool2</artifactId>
     </dependency>
 
-  </dependencies>
 
+  </dependencies>
 </project>

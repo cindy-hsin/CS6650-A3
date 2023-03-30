@@ -9,10 +9,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>assignment3</groupId>
-  <artifactId>GetServlet</artifactId>
-  <packaging>jar</packaging>
-  <name>GetServlet</name>
+  <artifactId>Consumer</artifactId>
 
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
@@ -21,7 +18,6 @@
   </properties>
 
   <dependencies>
-
     <dependency>
       <groupId>assignment3</groupId>
       <artifactId>Config</artifactId>
@@ -29,10 +25,18 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>4.0.1</version>
-      <scope>provided</scope>
+      <groupId>com.rabbitmq</groupId>
+      <artifactId>amqp-client</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
     </dependency>
 
     <dependency>
@@ -46,7 +50,6 @@
       <artifactId>mongo-java-driver</artifactId>
       <version>3.12.10</version>
     </dependency>
-
   </dependencies>
 
 </project>

@@ -30,10 +30,9 @@
 
 
   <modules>
-    <module>Servlet</module>
-    <module>LikesConsumer</module>
+    <module>PostServlet</module>
     <module>Config</module>
-    <module>MatchConsumer</module>
+    <module>Consumer</module>
     <module>GetServlet</module>
   </modules>
 

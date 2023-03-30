@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/../Consumer/target/classes" />
+    <output-test url="file://$MODULE_DIR$/../Consumer/target/test-classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../Consumer">
+      <sourceFolder url="file://$MODULE_DIR$/../Consumer/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../Consumer/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../Consumer/src/test/java" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/../Consumer/target" />
+    </content>
+    <orderEntry type="jdk" jdkName="11" jdkType="JavaSDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="Config" />
+    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.10.1" level="project" />
+    <orderEntry type="library" name="Maven: org.mongodb:mongo-java-driver:3.12.10" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.36" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-simple:1.7.36" level="project" />
+    <orderEntry type="library" name="Maven: javax.servlet:javax.servlet-api:4.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-pool2:2.11.1" level="project" />
+    <orderEntry type="library" name="Maven: com.rabbitmq:amqp-client:5.16.0" level="project" />
+  </component>
+</module>

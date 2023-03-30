@@ -17,7 +17,7 @@ import part2latency.RequestType;
 
 
 public class GetThread extends AbsSendRequestThread {
-  private static final int NUM_REQ_BATCH = 5;
+  private static final int NUM_REQ_BATCH = 5;  // Required Constant! Not a tuning parameter
   private static final int GAP_TIME_MS = 1000;
   private static final int MIN_ID = 1;
   private static final int MAX_USER_ID = 50000;
@@ -45,7 +45,7 @@ public class GetThread extends AbsSendRequestThread {
 
     while (this.latch.getCount() > 0) {
       Long batchStartTime = System.currentTimeMillis();
-      System.out.println("batchStartTime: " + batchStartTime);
+      System.out.println("GET batchStartTime: " + batchStartTime);
       for (int j = 0; j < NUM_REQ_BATCH; j++) {
         Record record = this.sendSingleRequest(matchesApi, statsApi, apiType);
         this.records.add(record);
@@ -71,21 +71,16 @@ public class GetThread extends AbsSendRequestThread {
     int statusCode;
     while (retry > 0) {
       try {
-//        if (apiType == 1) {
+        if (apiType == 1) {
           ApiResponse<Matches> res = matchesApi.matchesWithHttpInfo(userId);
           statusCode = res.getStatusCode();
-
           System.out.println("GET: MatchList for userId " + userId + ": " + res.getData().getMatchList());
-
-          //  System.out.println("GET: MatchList for userId"  + userId + ": " + "Status Code: " + res.getStatusCode() + " Msg: " + res.getData());
-
-
-//        }
-//        else {
-//          ApiResponse<MatchStats> res = statsApi.matchStatsWithHttpInfo(userId);
-//          statusCode = res.getStatusCode();
-//          System.out.println("GET: Stats for userId " + userId + ": " + "likes -> " + res.getData().getNumLlikes() + "dislikes -> " + res.getData().getNumDislikes());
-//        }
+        }
+        else {
+          ApiResponse<MatchStats> res = statsApi.matchStatsWithHttpInfo(userId);
+          statusCode = res.getStatusCode();
+          System.out.println("GET: Stats for userId " + userId + ": " + "likes -> " + res.getData().getNumLlikes() + " dislikes -> " + res.getData().getNumDislikes());
+        }
         endTime = System.currentTimeMillis();
         numSuccessfulReqs.getAndIncrement();
         return new Record(startTime, RequestType.GET, (int)(endTime-startTime), statusCode, Thread.currentThread().getName());
@@ -110,7 +105,7 @@ public class GetThread extends AbsSendRequestThread {
         // If it's not "User Not Found" error or "Bad Request" error-> REAL FAIL!(network error) Failed to send the request. Need to RETRY.
 
         System.out.println(
-            "RETRY GET Request. Type: " + apiTypeStr + " userID:" + userId + "err: " + e.getCode()
+            "GET: RETRY Request. Type: " + apiTypeStr + " userID:" + userId + "err: " + e.getCode()
                 + " " + e.getResponseBody());
         retry--;
         if (retry == 0) {

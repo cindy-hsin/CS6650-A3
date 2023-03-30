@@ -37,10 +37,10 @@ public class MainPart2 {
 
     // Start POST threads
     final AtomicInteger numTakenReqs = new AtomicInteger(0);
-//    for (int i = 0; i < LoadTestConfig.NUM_THREADS; i++) {
-//      Runnable thread = new PostThread(postLatch, numSuccessfulPostReqs, numFailedPostReqs, numTakenReqs, postRecordsBuffer);
-//      new Thread(thread).start();
-//    }
+    for (int i = 0; i < LoadTestConfig.NUM_THREADS; i++) {
+      Runnable thread = new PostThread(postLatch, numSuccessfulPostReqs, numFailedPostReqs, numTakenReqs, postRecordsBuffer);
+      new Thread(thread).start();
+    }
 
     System.out.println(" ========= Start! GET thread =========");
     // Start the Get thread
@@ -108,95 +108,6 @@ public class MainPart2 {
     // testCalcStatistics(inMemoryAllRecords);
   }
 
-//  private static void updateRunningMetrics(List<Record> records) {
-//    for (Record record: records) {
-//      if (record.getResponseCode() == LoadTestConfig.SUCCESS_CODE) {
-//        int curLatency = record.getLatency();
-//        postMetrics.setMinLatency(Math.min(curLatency, postMetrics.getMinLatency()));
-//        postMetrics.setMaxLatency(Math.max(curLatency, postMetrics.getMaxLatency()));
-//        postMetrics.setSumLatency(postMetrics.getSumLatency() + curLatency);
-//        postMetrics.setNumTotalRecord(postMetrics.getNumTotalRecord() + 1);
-//        // postMetrics.incrementStartTimeGroupCount(startTime, record.getStartTime());
-//      }
-//    }
-//  }
-
-/**
-  private static void writeAllRecords(List<Record> records) {
-    try (BufferedWriter outputFile = new BufferedWriter(new FileWriter(ALL_RECORDS_CSV, true))) {
-      String line;
-
-      for (Record record: records) {
-        line = record.toString();
-        outputFile.write(line + System.lineSeparator());
-      }
-    } catch (FileNotFoundException fnfe) {
-      System.out.println("*** Write: CSV file was not found : " + fnfe.getMessage());
-      fnfe.printStackTrace();
-    } catch (IOException ioe) {
-      System.out.println("Error when writing to CSV " + ALL_RECORDS_CSV + ": " + ioe.getMessage());
-      ioe.printStackTrace();
-    }
-  }
-
-  private static void readCsvToGroupLatency() {
-    try (BufferedReader inputFile = new BufferedReader(new FileReader(ALL_RECORDS_CSV))) {
-
-      String line;
-      while ((line = inputFile.readLine()) != null) {
-        String[] record = line.split(",");
-        if (Integer.valueOf(record[3]).equals(LoadTestConfig.SUCCESS_CODE)) {
-          int latency = Integer.valueOf(record[2]);
-          postMetrics.incrementLatencyGroupCount(latency);
-        }
-      }
-    } catch (FileNotFoundException fnfe) {
-      System.out.println("*** Read: CSV file was not found : " + fnfe.getMessage());
-      fnfe.printStackTrace();
-    } catch (IOException ioe) {
-      System.out.println("Error when reading CSV " + ALL_RECORDS_CSV + ": " + ioe.getMessage());
-      ioe.printStackTrace();
-    }
-  }
 
 
-  private static void writeToCsvByStartTime(Map<Integer, Integer> startTimeGroupCount) {
-    Map<Integer, Integer> sortedMap = new TreeMap<>(startTimeGroupCount);  // sort by key(second from programStartTime)
-
-    try (BufferedWriter outputFile = new BufferedWriter(new FileWriter(START_TIME_GROUP_CSV))) {
-      String line;
-
-      for (Integer second: sortedMap.keySet()) {
-        line = second + "," + sortedMap.get(second);
-        outputFile.write(line + System.lineSeparator());
-      }
-    } catch (FileNotFoundException fnfe) {
-      System.out.println("*** CSV file was not found : " + fnfe.getMessage());
-      fnfe.printStackTrace();
-    } catch (IOException ioe) {
-      System.out.println("Error when writing to CSV : " + ioe.getMessage());
-      ioe.printStackTrace();
-    }
-  }
-**/
-  /**
-   * Ues InMemory Collection & DescriptiveStatistics class
-   * to calculate the correct statistics (Only for TESTING PURPOSE)
-   */
-  /**
-  private static void testCalcStatistics( List<Record> inMemoryAllRecords) {
-
-    DescriptiveStatistics ds = new DescriptiveStatistics();
-
-    for (Record record: inMemoryAllRecords) {
-      ds.addValue(record.getLatency());
-    }
-    System.out.println("====== TEST: Statistics calculated with in memory collection and DescriptiveStatistics ========");
-    System.out.println("Mean Response Time (ms): " + ds.getMean());
-    System.out.println("Median Response Time (ms): "+ds.getPercentile(50));
-    System.out.print("99th Percentile Response Time: " + ds.getPercentile(99));
-    System.out.println("Min Response Time (ms): "+ds.getMin());
-    System.out.println("Max Response Time (ms): " + ds.getMax());
-  }
-*/
 }

@@ -52,7 +52,7 @@ public class PostThread extends AbsSendRequestThread implements Runnable{
     while (this.numTakenReqs.get() < LoadTestConfig.NUM_TOTAL_REQUESTS) {
       int taken = Math.min(LoadTestConfig.NUM_TOTAL_REQUESTS - this.numTakenReqs.get(), NUM_REQUEST_BATCH);
       this.numTakenReqs.getAndAdd(taken);
-      System.out.println("!!! " + "Thread:" + Thread.currentThread().getName() + " NEWLY TAKEN "+  taken + ". Now numTakenReqs: " + this.numTakenReqs.get());
+      System.out.println("!! POST BATCH !! " + "Thread:" + Thread.currentThread().getName() + " NEWLY TAKEN "+  taken + ". Now numTakenReqs: " + this.numTakenReqs.get());
       int curRoundNumOfSuccessfulReqs = 0;
       while (curRoundNumOfSuccessfulReqs < taken) {
         Record record = this.sendSingleRequest(PostRequestGenerator.generateSingleRequest(), swipeApi, this.numSuccessfulReqs, this.numFailedReqs);
@@ -100,12 +100,12 @@ public class PostThread extends AbsSendRequestThread implements Runnable{
 
         endTime = System.currentTimeMillis();
         numSuccessfulReqs.getAndIncrement();
-        System.out.println("POST: Thread:" + Thread.currentThread().getName() + " Success cnt:" + numSuccessfulReqs.get() + " Status:" + res.getStatusCode() + "Msg:"+ res.getData());
+        // System.out.println("POST: Thread:" + Thread.currentThread().getName() + " Success cnt:" + numSuccessfulReqs.get() + " Status:" + res.getStatusCode() + "Msg:"+ res.getData());
         return new Record(startTime, RequestType.POST, (int)(endTime-startTime), res.getStatusCode(), Thread.currentThread().getName());
       } catch (ApiException e) {
 //        System.out.println("Failed to send request: " + e.getCode() + ": " + e.getResponseBody() + ".request.Request details:"
 //            + request.getSwipeDir() + " " + request.getBody().toString() + ". Go retry");
-        System.out.println("RETRY POST Request");
+        System.out.println("POST: RETRY Request");
         retry --;
         if (retry == 0) {
           endTime = System.currentTimeMillis();

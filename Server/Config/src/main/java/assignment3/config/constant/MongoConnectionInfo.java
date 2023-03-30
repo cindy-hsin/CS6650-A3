@@ -3,7 +3,7 @@ package assignment3.config.constant;
 public class MongoConnectionInfo {
   public static final String USER_NAME = "";
   public static final String PASSWORD = "";
-  public static final String HOST_NAME = "127.0.0.1";
+  public static final String HOST_NAME = "34.220.110.130"; // local: "127.0.0.1";
 
   public static final String PORT = "27017";
 

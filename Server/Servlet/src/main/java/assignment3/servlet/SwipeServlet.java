@@ -2,10 +2,10 @@ package assignment3.servlet;
 
 import assignment3.config.constant.LoadTestConfig;
 import assignment3.config.constant.RMQConnectionInfo;
-import assignment3.servlet.datamodel.ResponseMsg;
+import assignment3.config.datamodel.ResponseMsg;
 import assignment3.servlet.rmqpool.RMQChannelFactory;
 import assignment3.servlet.rmqpool.RMQChannelPool;
-import assignment3.servlet.util.Pair;
+import assignment3.config.util.Pair;
 
 import assignment3.config.datamodel.SwipeDetails;
 
@@ -49,7 +49,7 @@ public class SwipeServlet extends HttpServlet {
     }
     RMQChannelFactory channelFactory = new RMQChannelFactory(connection);
 
-    this.pool = new RMQChannelPool(LoadTestConfig.SERVLET_CHANNEL_POOL_SIZE, channelFactory);
+    this.pool = new RMQChannelPool(LoadTestConfig.POST_SERVLET_CHANNEL_POOL_SIZE, channelFactory);
   }
 
   /**

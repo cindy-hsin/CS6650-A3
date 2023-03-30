@@ -1,13 +1,13 @@
 package assignment3.getservlet;
 
+import assignment3.config.constant.LoadTestConfig;
 import assignment3.config.constant.MongoConnectionInfo;
 import assignment3.config.datamodel.SwipeDetails;
-import assignment3.servlet.datamodel.Matches;
-import assignment3.servlet.datamodel.ResponseMsg;
-import assignment3.servlet.util.Pair;
+import assignment3.config.datamodel.Matches;
+import assignment3.config.datamodel.ResponseMsg;
+import assignment3.config.util.Pair;
 import com.google.gson.Gson;
 import com.mongodb.ConnectionString;
-import com.mongodb.Mongo;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoClient;
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -37,6 +38,7 @@ public class MatchesServlet extends HttpServlet {
   private final static Class<? extends List> listDocClazz = new ArrayList<Document>().getClass();
 
   private final static int MAX_MATCH_SIZE = 100;
+
   @Override
   public void init() throws ServletException {
     super.init();
@@ -47,14 +49,14 @@ public class MatchesServlet extends HttpServlet {
         .applyToConnectionPoolSettings(builder ->
             builder
                 .maxConnectionIdleTime(60, TimeUnit.SECONDS)
-                .maxSize(200)
+                .maxSize(LoadTestConfig.MATCHES_SERVLET_DB_MAX_CONNECTION)
                 .maxWaitTime(10, TimeUnit.SECONDS))
         .build(); // TODO: Extract common code (for GetServlet and Consumer) to Config package.
 
     try {
       this.mongoClient = MongoClients.create(settings);
     } catch (MongoException me) {
-      System.out.println("Cannot create MongoClient: " + me);
+      System.err.println("Cannot create MongoClient for MatchesServlet: " + me);
     }
   }
 
@@ -62,6 +64,7 @@ public class MatchesServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
     ResponseMsg responseMsg = new ResponseMsg();
     Gson gson = new Gson();
 
@@ -89,12 +92,16 @@ public class MatchesServlet extends HttpServlet {
 
     Integer swiperId = Integer.valueOf(urlValidationRes.getParam());
 
-    // TODO: Connect and Query DB with userId.
-    //  If any Exception is thrown when connecting and querying DB -> catch Exception, response.setStatus('500');
+
+    // TODO: HardCoded for now. Need to fetch matchList from DB
+//    List<String> matches = Arrays.asList("123", "456", "789"); //new ArrayList<>({"123", "456", "789"});
+//    Matches matchList = new Matches(matches);
+//    response.setStatus(HttpServletResponse.SC_OK);
+//    response.getOutputStream().print(gson.toJson(matchList));
+//    response.getOutputStream().flush();
 
     // Connect to MongoDB
     MongoDatabase database = this.mongoClient.getDatabase(MongoConnectionInfo.DATABASE);
-
     MongoCollection<Document> matchesCollection = database.getCollection(MongoConnectionInfo.MATCH_COLLECTION);
     this.readMatchesCollection(matchesCollection, swiperId, gson, responseMsg, response);
   }
@@ -106,18 +113,25 @@ public class MatchesServlet extends HttpServlet {
     if (doc == null) {  // <--> No document matches the _id
       responseMsg.setMessage("User Not Found");
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+      response.getOutputStream().print(gson.toJson(responseMsg));
+      response.getOutputStream().flush();
+      System.out.println("Respond to Client: User Not Found:" + swiperId);
     } else {
       List<Integer> matchesList = doc.get("matches", listDocClazz);
       if (matchesList.size() > MAX_MATCH_SIZE) {
         matchesList = matchesList.subList(0, MAX_MATCH_SIZE);
       }
-      Matches matches = new Matches(matchesList);
-      responseMsg.setMessage(gson.toJson(matches));
+      //Convert List<Integer> to List<String>
+      Matches matches = new Matches(matchesList.stream().map(id -> String.valueOf(id)).collect(
+          Collectors.toList()));
+      responseMsg.setMessage("Fetched Match!");
       response.setStatus(HttpServletResponse.SC_OK);
-      // TODO need to set anything in header??? to send back response body to client
+      response.getWriter().print(gson.toJson(matches));
+      response.getWriter().flush();
+      System.out.println("Respond to Client: Fetched Match for:" + swiperId);
+
     }
-    response.getOutputStream().print(gson.toJson(responseMsg));
-    response.getOutputStream().flush();
+
   }
 
   private Pair isUrlValid(String urlPath) {

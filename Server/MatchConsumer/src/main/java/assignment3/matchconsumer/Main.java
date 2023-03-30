@@ -2,6 +2,7 @@ package assignment3.matchconsumer;
 
 import static assignment3.config.constant.LoadTestConfig.CONSUMER_THREAD_NUM;
 
+import assignment3.config.constant.LoadTestConfig;
 import assignment3.config.constant.MongoConnectionInfo;
 import assignment3.config.constant.RMQConnectionInfo;
 import com.mongodb.ConnectionString;
@@ -31,6 +32,7 @@ public class Main {
     rmqConnFactory.setPort(Integer.valueOf(RMQConnectionInfo.RMQ_SERVER_CONFIG.get("portNumber")));
 
     Connection rmqConn = rmqConnFactory.newConnection();
+    System.out.println("Connected to RMQ!");
 
     ConnectionString mongoUri = new ConnectionString(MongoConnectionInfo.uri);
     MongoClientSettings settings = MongoClientSettings.builder()
@@ -38,12 +40,13 @@ public class Main {
         .applyToConnectionPoolSettings(builder ->
             builder
                 .maxConnectionIdleTime(60, TimeUnit.SECONDS)
-                .maxSize(200)
+                .maxSize(LoadTestConfig.CONSUMER_DB_MAX_CONNECTION)
                 .maxWaitTime(10, TimeUnit.SECONDS))
         .build();
 
     try {
       MongoClient mongoClient = MongoClients.create(settings);
+      System.out.println("Connected to MongoDB!");
       // TODO: Do we need to lock the collection to avoid non-deterministic result on the documents?
       //  -> When multiple threads need to modify the same document...Or the operations
       //  chatgpt: update operations in MongoDB are atomic at the document level,
@@ -59,7 +62,7 @@ public class Main {
         new Thread(thread).start();
       }
 
-      System.out.println("Closed all MatchConsumer Threads.");
+      System.out.println("Started all MatchConsumer Threads.");
     } catch (MongoException me) {
       System.out.println("Failed to create mongoClient: " + me);
     }

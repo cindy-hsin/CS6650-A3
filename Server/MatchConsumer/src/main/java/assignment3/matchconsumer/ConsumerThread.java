@@ -1,5 +1,7 @@
 package assignment3.matchconsumer;
 
+import static assignment3.config.constant.LoadTestConfig.BATCH_UPDATE_SIZE;
+
 import assignment3.config.constant.MongoConnectionInfo;
 import assignment3.config.constant.RMQConnectionInfo;
 import assignment3.config.datamodel.SwipeDetails;
@@ -36,7 +38,7 @@ import org.bson.conversions.Bson;
 public class ConsumerThread implements Runnable{
 
   private static final String QUEUE_NAME = "write_to_db";
-  private static final int BATCH_UPDATE_SIZE = 2;
+
   private static final Gson gson = new Gson();
   private Connection connection;
   private MongoClient mongoClient;
@@ -63,14 +65,14 @@ public class ConsumerThread implements Runnable{
 
       // Max one message per consumer (to guarantee even distribution)
       channel.basicQos(BATCH_UPDATE_SIZE);
-      System.out.println(" [*] MatchConsumer Thread waiting for messages. To exit press CTRL+C");
+      System.out.println(" [*] Consumer Thread " + Thread.currentThread().getName() + " waiting for messages. To exit press CTRL+C");
 
       // Connect to MongoDB
       MongoDatabase database = mongoClient.getDatabase(MongoConnectionInfo.DATABASE);
       MongoCollection<Document> matchesCollection = database.getCollection(MongoConnectionInfo.MATCH_COLLECTION);
       MongoCollection<Document> statsCollection = database.getCollection(MongoConnectionInfo.STATS_COLLECTION);
 
-      System.out.println("MongoDB connected!");
+      System.out.println("Consumer Thread gets Mongo collection!");
       // ======= HARD-CODED TEST DB WRITE ====
 //      List bulkOps = new ArrayList<>();
 //      Bson filter = Filters.eq("_id", 888);
@@ -92,13 +94,13 @@ public class ConsumerThread implements Runnable{
 //
 //      try {
 //        BulkWriteResult result = matchesCollection.bulkWrite(bulkOps);
-//        System.out.println("thread ID = " + Thread.currentThread().getId() + "\nBulk write to Matches:" +
+//        System.out.println("thread Name = " + Thread.currentThread().getName() + "\nBulk write to Matches:" +
 //            "\ninserted: " + result.getInsertedCount() +
 //            "\nupdated: " + result.getModifiedCount() +
 //            "\ndeleted: " + result.getDeletedCount() +
 //            "\nHashmap id count: " + this.matchesMap.size());
 //      } catch (MongoException me) {
-//        System.out.println("thread ID = " + Thread.currentThread().getId() + ": Bulk write to Matches failed due to an error: " + me);
+//        System.out.println("thread Name = " + Thread.currentThread().getName() + ": Bulk write to Matches failed due to an error: " + me);
 //      }
 
 
@@ -125,13 +127,13 @@ public class ConsumerThread implements Runnable{
 //
 //    try {
 //      BulkWriteResult result = statsCollection.bulkWrite(bulkOps);
-//      System.out.println("thread ID = " + Thread.currentThread().getId() + "\nBulk write to Stats:" +
+//      System.out.println("thread Name = " + Thread.currentThread().getName() + "\nBulk write to Stats:" +
 //          "\ninserted: " + result.getInsertedCount() +
 //          "\nupdated: " + result.getModifiedCount() +
 //          "\ndeleted: " + result.getDeletedCount() +
 //          "\nHashmap id count: " + this.matchesMap.size());
 //    } catch (MongoException me) {
-//      System.out.println("thread ID = " + Thread.currentThread().getId() + ": Bulk write to Stats failed due to an error: " + me);
+//      System.out.println("thread Name = " + Thread.currentThread().getName() + ": Bulk write to Stats failed due to an error: " + me);
 //    }
 
       // ======= HARD-CODED TEST DB WRITE ====
@@ -154,7 +156,7 @@ public class ConsumerThread implements Runnable{
         } else {
           this.statsMap.get(swiperId)[1] ++;
         }
-        System.out.println( "Callback thread ID = " + Thread.currentThread().getId() + " Received '" + message + "'");
+        System.out.println( "Callback thread Name = " + Thread.currentThread().getName() + " Received '" + message + "'");
         batch_cnt[0] ++;
 
         if (batch_cnt[0] < BATCH_UPDATE_SIZE) {
@@ -217,13 +219,13 @@ public class ConsumerThread implements Runnable{
 
     try {
       BulkWriteResult result = collection.bulkWrite(bulkOps);
-      System.out.println("thread ID = " + Thread.currentThread().getId() + "\nBulk write to Matches:" +
+      System.out.println("thread Name = " + Thread.currentThread().getName() + "\nBulk write to Matches:" +
           "\ninserted: " + result.getInsertedCount() +
           "\nupdated: " + result.getModifiedCount() +
           "\ndeleted: " + result.getDeletedCount() +
           "\nHashmap id count: " + this.matchesMap.size());
     } catch (MongoException me) {
-      System.out.println("thread ID = " + Thread.currentThread().getId() + ": Bulk write to Matches failed due to an error: " + me);
+      System.out.println("thread Name = " + Thread.currentThread().getName() + ": Bulk write to Matches failed due to an error: " + me);
     }
   }
 
@@ -244,7 +246,6 @@ public class ConsumerThread implements Runnable{
       Bson incUpdate = Updates.combine(
           Updates.inc("likes", likes),
           Updates.inc("dislikes", dislikes));
-      // TODO: check if no document matches, will a new document be created with likes == 0 and dislikes == 0?
 
       UpdateOneModel <Document> insertIfAbsentModel = new UpdateOneModel<>(filter, insertIfAbsent,
           new UpdateOptions().upsert(true));
@@ -259,13 +260,13 @@ public class ConsumerThread implements Runnable{
 
     try {
       BulkWriteResult result = collection.bulkWrite(bulkOps);
-      System.out.println("thread ID = " + Thread.currentThread().getId() + "\nBulk write to Stats:" +
+      System.out.println("thread Name = " + Thread.currentThread().getName() + "\nBulk write to Stats:" +
           "\ninserted: " + result.getInsertedCount() +
           "\nupdated: " + result.getModifiedCount() +
           "\ndeleted: " + result.getDeletedCount() +
           "\nHashmap id count: " + this.matchesMap.size());
     } catch (MongoException me) {
-      System.out.println("thread ID = " + Thread.currentThread().getId() + ": Bulk write to Stats failed due to an error: " + me);
+      System.out.println("thread Name = " + Thread.currentThread().getName() + ": Bulk write to Stats failed due to an error: " + me);
     }
   }
 }

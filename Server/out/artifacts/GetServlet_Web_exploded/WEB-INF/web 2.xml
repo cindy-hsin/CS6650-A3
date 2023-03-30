@@ -13,14 +13,4 @@
     <servlet-name>assignment3.getservlet.MatchesServlet</servlet-name>
     <url-pattern>/matches/*</url-pattern>
   </servlet-mapping>
-
-  <servlet>
-    <servlet-name>assignment3.getservlet.StatsServlet</servlet-name>
-    <servlet-class>assignment3.getservlet.StatsServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>assignment3.getservlet.StatsServlet</servlet-name>
-    <url-pattern>/stats/*</url-pattern>
-  </servlet-mapping>
 </web-app>

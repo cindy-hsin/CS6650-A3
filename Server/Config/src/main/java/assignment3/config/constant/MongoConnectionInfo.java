@@ -1,4 +1,7 @@
 package assignment3.config.constant;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import java.util.concurrent.TimeUnit;
 
 public class MongoConnectionInfo {
   public static final String USER_NAME = "";
@@ -19,4 +22,21 @@ public class MongoConnectionInfo {
 //      "@" + HOST_NAME + ":" + PORT;
   public static final String uri = "mongodb://" +
        HOST_NAME + ":" + PORT;
+
+
+  public static MongoClientSettings buildMongoSettings(String servletClassName) {
+    MongoClientSettings settings = MongoClientSettings.builder()
+        .applyConnectionString(new ConnectionString(MongoConnectionInfo.uri))
+        .applyToConnectionPoolSettings(builder ->
+            builder
+                .maxConnectionIdleTime(60, TimeUnit.SECONDS)
+                .maxSize(servletClassName == "Matches" ?
+                    LoadTestConfig.MATCHES_SERVLET_DB_MAX_CONNECTION :
+                    LoadTestConfig.STATS_SERVLET_DB_MAX_CONNECTION)
+                .maxWaitTime(10, TimeUnit.SECONDS))
+        .build();
+
+    return settings;
+  }
+
 }

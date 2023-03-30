@@ -3,6 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Config_jar</output-path>
     <root id="archive" name="Config.jar">
       <element id="module-output" name="Config" />
+      <element id="library" level="project" name="Maven: org.mongodb:mongo-java-driver:3.12.10" />
     </root>
   </artifact>
 </component>

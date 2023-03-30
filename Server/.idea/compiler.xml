@@ -7,11 +7,13 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Servlet" />
-        <module name="LikesConsumer" />
         <module name="MatchConsumer" />
         <module name="GetServlet" />
         <module name="Config" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="LikesConsumer" target="11" />
+    </bytecodeTargetLevel>
   </component>
 </project>

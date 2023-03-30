@@ -16,7 +16,7 @@
 
   <servlet>
     <servlet-name>assignment3.getservlet.StatsServlet</servlet-name>
-    <servlet-class>assignment3.getservlet.MatchesServlet</servlet-class>
+    <servlet-class>assignment3.getservlet.StatsServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>

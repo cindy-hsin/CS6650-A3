@@ -29,7 +29,7 @@ import org.bson.Document;
 import static com.mongodb.client.model.Filters.eq;
 
 @WebServlet(name = "assignment3.getservlet.MatchesServlet", value = "/matches")
-public class MatchesServlet extends HttpServlet {
+public class MatchesServlet extends AbstractGetServlet {
 /** TODO: Use Dao to connect and query from DB?
  * TODO: Does this Servlet need to be multi-threaded? Do we also need to create a DB connection pool,
  * for Tomcat's multi-threads to use? like we did for RMQ(SwipeServlet, send msg to RMQ)
@@ -42,17 +42,8 @@ public class MatchesServlet extends HttpServlet {
   @Override
   public void init() throws ServletException {
     super.init();
-    ConnectionString mongoUri = new ConnectionString(MongoConnectionInfo.uri);
 
-    MongoClientSettings settings = MongoClientSettings.builder()
-        .applyConnectionString(mongoUri)
-        .applyToConnectionPoolSettings(builder ->
-            builder
-                .maxConnectionIdleTime(60, TimeUnit.SECONDS)
-                .maxSize(LoadTestConfig.MATCHES_SERVLET_DB_MAX_CONNECTION)
-                .maxWaitTime(10, TimeUnit.SECONDS))
-        .build(); // TODO: Extract common code (for GetServlet and Consumer) to Config package.
-
+    MongoClientSettings settings = MongoConnectionInfo.buildMongoSettings("Matches");
     try {
       this.mongoClient = MongoClients.create(settings);
     } catch (MongoException me) {
@@ -67,32 +58,11 @@ public class MatchesServlet extends HttpServlet {
     response.setCharacterEncoding("UTF-8");
     ResponseMsg responseMsg = new ResponseMsg();
     Gson gson = new Gson();
+    Integer swiperId = this.validateAndExtractId(request, response, responseMsg, gson);
 
-    String urlPath = request.getPathInfo();
-
-    // check we have a URL!
-    if (urlPath == null || urlPath.isEmpty()) {
-      responseMsg.setMessage("missing path parameter: userID");
-      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      response.getOutputStream().print(gson.toJson(responseMsg));
-      response.getOutputStream().flush();
+    if (swiperId == null) {
       return;
     }
-
-    // check if URL path HAS exactly one parameter (userId) and
-    // userId has a valid value: is integer and within range
-    Pair urlValidationRes = this.isUrlValid(urlPath);
-    if (!urlValidationRes.isUrlPathValid()) {
-      responseMsg.setMessage("invalid path parameter: should be a positive integer <= " + Math.max(SwipeDetails.MAX_SWIPEE_ID, SwipeDetails.MAX_SWIPER_ID));
-      response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Invalid inputs
-      response.getOutputStream().print(gson.toJson(responseMsg));
-      response.getOutputStream().flush();
-      return;
-    }
-
-    Integer swiperId = Integer.valueOf(urlValidationRes.getParam());
-
-
     // TODO: HardCoded for now. Need to fetch matchList from DB
 //    List<String> matches = Arrays.asList("123", "456", "789"); //new ArrayList<>({"123", "456", "789"});
 //    Matches matchList = new Matches(matches);
@@ -124,36 +94,15 @@ public class MatchesServlet extends HttpServlet {
       //Convert List<Integer> to List<String>
       Matches matches = new Matches(matchesList.stream().map(id -> String.valueOf(id)).collect(
           Collectors.toList()));
-      responseMsg.setMessage("Fetched Match!");
+      responseMsg.setMessage("Fetched Matches for userId " + swiperId + "!");
       response.setStatus(HttpServletResponse.SC_OK);
       response.getWriter().print(gson.toJson(matches));
       response.getWriter().flush();
-      System.out.println("Respond to Client: Fetched Match for:" + swiperId);
+      System.out.println("MatchesServlet Respond to Client: Fetched for:" + swiperId);
 
     }
 
   }
 
-  private Pair isUrlValid(String urlPath) {
-    /**
-     * Check if url path has exactly one param: {userId} and its valid(within  range)
-     */
-    String[] urlParts = urlPath.split("/");
-
-    if (urlParts.length != 2) {
-      System.out.print("not 2");
-      return new Pair(false, null);
-    }
-
-    int userId;
-    try {
-      userId = Integer.valueOf(urlParts[1]);
-      return new Pair(userId <= Math.max(SwipeDetails.MAX_SWIPEE_ID, SwipeDetails.MAX_SWIPER_ID) && userId >= 1,
-          urlParts[1]);
-    } catch (NumberFormatException e) {
-      return new Pair(false, null);
-    }
-
-  }
 
 }

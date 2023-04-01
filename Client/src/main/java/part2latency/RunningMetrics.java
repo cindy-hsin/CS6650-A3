@@ -10,8 +10,8 @@ import java.util.Map;
 
 public class RunningMetrics {
   protected static final int NUM_BUCKET = 10000;
-  private int minLatency = new Double(POSITIVE_INFINITY).intValue();
-  private int  maxLatency = new Double(NEGATIVE_INFINITY).intValue();
+  private int minLatency = (int) POSITIVE_INFINITY;
+  private int  maxLatency = (int) NEGATIVE_INFINITY;
   private int sumLatency = 0;
   private int numTotalRecord = 0;
   private int[] latencyGroupCount = new int[NUM_BUCKET];
@@ -70,7 +70,7 @@ public class RunningMetrics {
   }
 
   public float getBucketSize() {
-    if (this.maxLatency == new Double(NEGATIVE_INFINITY).intValue()) {
+    if (this.maxLatency == (int) NEGATIVE_INFINITY) {
       throw new RuntimeException("Max & Min Latency haven't been set yet");
     }
     return this.bucketSize;

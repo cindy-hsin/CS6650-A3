@@ -55,7 +55,7 @@ public class PostThread extends AbsSendRequestThread implements Runnable{
       System.out.println("!! POST BATCH !! " + "Thread:" + Thread.currentThread().getName() + " NEWLY TAKEN "+  taken + ". Now numTakenReqs: " + this.numTakenReqs.get());
       int curRoundNumOfSuccessfulReqs = 0;
       while (curRoundNumOfSuccessfulReqs < taken) {
-        Record record = this.sendSingleRequest(PostRequestGenerator.generateSingleRequest(), swipeApi, this.numSuccessfulReqs, this.numFailedReqs);
+        Record record = this.sendSingleRequest(PostRequestGenerator.generateSingleRequest(), swipeApi);
 
         if (record.getResponseCode() == LoadTestConfig.POST_SUCCESS_CODE) {
           curRoundNumOfSuccessfulReqs++;
@@ -88,7 +88,7 @@ public class PostThread extends AbsSendRequestThread implements Runnable{
    * NOTE: Compared to the sendSingleRequest method in AbsSendRequestThread class, which is used in the Average Model and Producer-Consumer Model,
    * this implementation don't have any "blocking"s, since it doesn't MODIFY any global objects.(e.g. counters:  numSuccessfulReqs, numFailedReqs)
    */
-  private Record sendSingleRequest(PostRequest request, SwipeApi swipeApi, AtomicInteger numSuccessfulReqs, AtomicInteger numFailedReqs) {
+  private Record sendSingleRequest(PostRequest request, SwipeApi swipeApi) {
     int retry = LoadTestConfig.MAX_RETRY;
 
     long startTime = System.currentTimeMillis();
@@ -99,7 +99,7 @@ public class PostThread extends AbsSendRequestThread implements Runnable{
         ApiResponse<Void> res = swipeApi.swipeWithHttpInfo(request.getBody(), request.getSwipeDir());
 
         endTime = System.currentTimeMillis();
-        numSuccessfulReqs.getAndIncrement();
+        // numSuccessfulReqs.getAndIncrement();
         // System.out.println("POST: Thread:" + Thread.currentThread().getName() + " Success cnt:" + numSuccessfulReqs.get() + " Status:" + res.getStatusCode() + "Msg:"+ res.getData());
         return new Record(startTime, RequestType.POST, (int)(endTime-startTime), res.getStatusCode(), Thread.currentThread().getName());
       } catch (ApiException e) {
@@ -109,7 +109,7 @@ public class PostThread extends AbsSendRequestThread implements Runnable{
         retry --;
         if (retry == 0) {
           endTime = System.currentTimeMillis();
-          numFailedReqs.getAndIncrement();
+          // numFailedReqs.getAndIncrement();
           return new Record(startTime, RequestType.POST, (int)(endTime-startTime), e.getCode(), Thread.currentThread().getName());
         }
       }

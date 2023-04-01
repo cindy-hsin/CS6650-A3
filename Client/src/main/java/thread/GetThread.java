@@ -18,7 +18,7 @@ import part2latency.RequestType;
 
 public class GetThread extends AbsSendRequestThread {
   private static final int NUM_REQ_BATCH = 5;  // Required Constant! Not a tuning parameter
-  private static final int GAP_TIME_MS = 1000;
+  private static final int GAP_TIME_MS = 1000; // Required Constant! Not a tuning parameter
   private static final int MIN_ID = 1;
   private static final int MAX_USER_ID = 50000;
 

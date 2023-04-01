@@ -43,12 +43,11 @@ public class MainPart2 {
     }
 
     System.out.println(" ========= Start! GET thread =========");
-    // Start the Get thread
+    // Start the GET thread
     new Thread(new GetThread(postLatch, numSuccessfulGetReqs, numFailedGetReqs, getRecords)).start();
 
-
+    // Update Metrics for POST records
     int numRecordListsTaken = 0;
-//    List<Record> inMemoryAllRecords = new ArrayList<>();
     while (numRecordListsTaken < LoadTestConfig.NUM_THREADS || endPostTime == null) {
       if (postRecordsBuffer.size() > 0) {
         // take from buffer
@@ -63,6 +62,9 @@ public class MainPart2 {
         endPostTime = System.currentTimeMillis();
       }
     }
+
+    // Update Metrics for GET records
+    getMetrics.updateRunningMetrics(getRecords);
 
     // endTime might contain one unnecessary FileWrite time.
     // CASE1:

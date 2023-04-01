@@ -3,7 +3,11 @@
   <component name="ArtifactsWorkspaceSettings">
     <artifacts-to-build>
       <artifact name="Config:jar" />
+      <artifact name="Consumer:jar" />
+      <artifact name="GetServlet:war" />
       <artifact name="GetServlet:war exploded" />
+      <artifact name="PostServlet:war" />
+      <artifact name="PostServlet:war exploded" />
     </artifacts-to-build>
   </component>
   <component name="AutoImportSettings">
@@ -11,8 +15,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2974497e-b438-4a39-a643-b17a79029b4b" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/artifacts/GetServlet_war.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/artifacts/PostServlet_war.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/src/main/java/config/LoadTestConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/src/main/java/config/LoadTestConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/src/main/java/part2latency/MainPart2.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/src/main/java/part2latency/MainPart2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/src/main/java/part2latency/RunningMetrics.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/src/main/java/part2latency/RunningMetrics.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/src/main/java/thread/GetThread.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/src/main/java/thread/GetThread.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/src/main/java/thread/PostThread.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/src/main/java/thread/PostThread.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/Consumer_jar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artifacts/Consumer_jar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Server.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Config/src/main/java/assignment3/config/constant/LoadTestConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/Config/src/main/java/assignment3/config/constant/LoadTestConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Config/src/main/java/assignment3/config/constant/MongoConnectionInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/Config/src/main/java/assignment3/config/constant/MongoConnectionInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Config/src/main/java/assignment3/config/constant/RMQConnectionInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/Config/src/main/java/assignment3/config/constant/RMQConnectionInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Consumer/src/main/java/assignment3/consumer/ConsumerThread.java" beforeDir="false" afterPath="$PROJECT_DIR$/Consumer/src/main/java/assignment3/consumer/ConsumerThread.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Consumer/src/main/java/assignment3/consumer/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Consumer/src/main/java/assignment3/consumer/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MatchConsumer/Consumer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/MatchConsumer/MatchConsumer.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,6 +85,7 @@
     "project.structure.last.edited": "Artifacts",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.19125128",
+    "settings.editor.selected.configurable": "project.scopes",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -93,7 +113,7 @@
     </configuration>
     <configuration name="assignment3.consumer.Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="assignment3.consumer.Main" />
-      <module name="Consumer" />
+      <module name="MatchConsumer" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="assignment3.consumer.*" />
@@ -228,6 +248,7 @@
       <workItem from="1680207183014" duration="248000" />
       <workItem from="1680207438493" duration="5000" />
       <workItem from="1680207460697" duration="1869000" />
+      <workItem from="1680209346936" duration="37522000" />
     </task>
     <servers />
   </component>

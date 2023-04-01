@@ -6,6 +6,7 @@ import assignment3.config.constant.LoadTestConfig;
 import assignment3.config.constant.MongoConnectionInfo;
 import assignment3.config.constant.RMQConnectionInfo;
 import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoClient;
@@ -31,6 +32,7 @@ public class Main {
     System.out.println("Connected to RMQ!");
 
     ConnectionString mongoUri = new ConnectionString(MongoConnectionInfo.uri);
+
     MongoClientSettings settings = MongoClientSettings.builder()
         .applyConnectionString(mongoUri)
         .applyToConnectionPoolSettings(builder ->

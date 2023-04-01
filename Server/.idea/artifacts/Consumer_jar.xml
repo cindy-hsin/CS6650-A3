@@ -2,7 +2,7 @@
   <artifact type="jar" name="Consumer:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/Consumer_jar</output-path>
     <root id="archive" name="Consumer.jar">
-      <element id="module-output" name="Consumer" />
+      <element id="module-output" name="MatchConsumer" />
       <element id="module-output" name="Config" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/mongodb/mongo-java-driver/3.12.10/mongo-java-driver-3.12.10.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/javax/servlet/javax.servlet-api/4.0.1/javax.servlet-api-4.0.1.jar" path-in-jar="/" />

@@ -18,6 +18,7 @@ import com.mongodb.client.model.Updates;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.Delivery;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,101 +43,52 @@ public class ConsumerThread implements Runnable{
   private Map<Integer, Set<Integer>> matchesMap = new HashMap<>();
   private Map<Integer, int[]> statsMap = new HashMap<>();
 
+  private final int[] batch_cnt = {0};
+  private MongoCollection<Document> matchesCollection;
+
+  private MongoCollection<Document> statsCollection;
+
+  private Channel rmqChannel;
+  private Delivery lastNackDelivery;
+  private Long lastDeliveryTime;
+
 
 //  private ConcurrentHashMap<String, Set<String>> map;
   public ConsumerThread(Connection connection, MongoClient mongoClient) {
     this.connection = connection;
     this.mongoClient = mongoClient;
+
+    try {
+      // Connect to RMQ
+      this.rmqChannel = connection.createChannel();
+
+      // Connect to MongoDB
+      MongoDatabase database = mongoClient.getDatabase(MongoConnectionInfo.DATABASE);
+      this.matchesCollection = database.getCollection(MongoConnectionInfo.MATCH_COLLECTION);
+      this.statsCollection = database.getCollection(MongoConnectionInfo.STATS_COLLECTION);
+    } catch (IOException e) {
+      Logger.getLogger(ConsumerThread.class.getName()).log(Level.SEVERE, null, e);
+    }
   }
+
 
   @Override
   public void run() {
     try {
-      final Channel channel = connection.createChannel();
-
       // Durable, Non-exclusive(Can be shared across different channels),
       // Non-autoDelete, classic queue.
-      channel.queueDeclare(QUEUE_NAME, true, false, false, new HashMap<>(Map.of("x-queue-type", "classic")));
-      channel.queueBind(QUEUE_NAME, RMQConnectionInfo.EXCHANGE_NAME, "write_to_db");
+      this.rmqChannel.queueDeclare(QUEUE_NAME, true, false, false, new HashMap<>(Map.of("x-queue-type", "classic")));
+      this.rmqChannel.queueBind(QUEUE_NAME, RMQConnectionInfo.EXCHANGE_NAME, "write_to_db");
 
       // Max one message per consumer (to guarantee even distribution)
-      channel.basicQos(BATCH_UPDATE_SIZE);
+      this.rmqChannel.basicQos(BATCH_UPDATE_SIZE);
       System.out.println(" [*] Consumer Thread " + Thread.currentThread().getName() + " waiting for messages. To exit press CTRL+C");
 
-      // Connect to MongoDB
-      MongoDatabase database = mongoClient.getDatabase(MongoConnectionInfo.DATABASE);
-      MongoCollection<Document> matchesCollection = database.getCollection(MongoConnectionInfo.MATCH_COLLECTION);
-      MongoCollection<Document> statsCollection = database.getCollection(MongoConnectionInfo.STATS_COLLECTION);
-
       System.out.println("Consumer Thread gets Mongo collection!");
-      // ======= HARD-CODED TEST DB WRITE ====
-//      List bulkOps = new ArrayList<>();
-//      Bson filter = Filters.eq("_id", 888);
-//      Bson initUpdate = Updates.setOnInsert("matches",  new ArrayList<>());
-//      Bson addUpdate = Updates.addEachToSet("matches", Arrays.asList(1,3,5,7,9));
-//
-//       UpdateOneModel<Document> initUpdateModel = new UpdateOneModel<>(filter, initUpdate,
-//          new UpdateOptions().upsert(true));
-//      UpdateOneModel<Document> addUpdateModel = new UpdateOneModel<>(filter, addUpdate,
-//          new UpdateOptions().upsert(false));
-//
-//      // false -> Ensure that if no document matches the filter, a new document won't be inserted
-//      // with the specified value (bc the specified value is not an initial value -> empty list.)
-//      // TODO: check if no document matches, will a new document be created with matches == empty array?
-//      //  Check if it's okay to drop the initUpdate for an array type field?
-//      //
-//      bulkOps.add(initUpdateModel);
-//      bulkOps.add(addUpdateModel);
-//
-//      try {
-//        BulkWriteResult result = matchesCollection.bulkWrite(bulkOps);
-//        System.out.println("thread Name = " + Thread.currentThread().getName() + "\nBulk write to Matches:" +
-//            "\ninserted: " + result.getInsertedCount() +
-//            "\nupdated: " + result.getModifiedCount() +
-//            "\ndeleted: " + result.getDeletedCount() +
-//            "\nHashmap id count: " + this.matchesMap.size());
-//      } catch (MongoException me) {
-//        System.out.println("thread Name = " + Thread.currentThread().getName() + ": Bulk write to Matches failed due to an error: " + me);
-//      }
-
-
-//      List bulkOps = new ArrayList<>();
-//      Bson filter = Filters.eq("_id", 888);
-//      // setOnInsert: If the document already exists, this field will not be modified.
-//      // Only if a new document is inserted as a result of an update operation, will the field be specified the given value.
-//      Bson insertIfAbsent = Updates.combine(Updates.setOnInsert("likes", 0),
-//          Updates.setOnInsert("dislikes", 0));
-//      Bson incUpdate = Updates.combine(
-//          Updates.inc("likes", 1),
-//          Updates.inc("dislikes", 4));
-//      // TODO: check if no document matches, will a new document be created with likes == 0 and dislikes == 0?
-//
-//      UpdateOneModel <Document> insertIfAbsentModel = new UpdateOneModel<>(filter, insertIfAbsent,
-//          new UpdateOptions().upsert(true));
-//      UpdateOneModel <Document> incUpdateModel = new UpdateOneModel<>(filter, incUpdate,
-//          new UpdateOptions().upsert(false));
-//      // false -> Ensure that if no document matches the filter, a new document won't be inserted
-//      // with the specified value (bc the specified value is the amount to increment, not an initial value.)
-//
-//      bulkOps.add(insertIfAbsentModel);
-//      bulkOps.add(incUpdateModel);
-//
-//    try {
-//      BulkWriteResult result = statsCollection.bulkWrite(bulkOps);
-//      System.out.println("thread Name = " + Thread.currentThread().getName() + "\nBulk write to Stats:" +
-//          "\ninserted: " + result.getInsertedCount() +
-//          "\nupdated: " + result.getModifiedCount() +
-//          "\ndeleted: " + result.getDeletedCount() +
-//          "\nHashmap id count: " + this.matchesMap.size());
-//    } catch (MongoException me) {
-//      System.out.println("thread Name = " + Thread.currentThread().getName() + ": Bulk write to Stats failed due to an error: " + me);
-//    }
-
-      // ======= HARD-CODED TEST DB WRITE ====
-
-      final int[] batch_cnt = {0};
 
       DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+        this.lastDeliveryTime = System.currentTimeMillis();
+
         String message = new String(delivery.getBody(), "UTF-8");
         // Store data into a thread-safe hashmap
         SwipeDetails swipeDetails = gson.fromJson(message, SwipeDetails.class);
@@ -152,38 +104,70 @@ public class ConsumerThread implements Runnable{
         } else {
           this.statsMap.get(swiperId)[1] ++;
         }
-        System.out.println( "Callback thread Name = " + Thread.currentThread().getName() + " Received '" + message + "'");
-        batch_cnt[0] ++;
+        System.out.println( "Callback thread Name = " + Thread.currentThread().getName() + " Received '" + "swiperId: "+ swiperId + " swipeeId: " + swipeeId);
+        this.batch_cnt[0] ++;
 
-        if (batch_cnt[0] < BATCH_UPDATE_SIZE) {
+        if (this.batch_cnt[0] < BATCH_UPDATE_SIZE) {
+          this.lastNackDelivery = delivery;
           return;
         }
 
-        this.updateMatchesCollection(matchesCollection);
-        this.updateStatsCollection(statsCollection);
-        // Manual Acknowledgement in Batch
-        channel.basicAck(delivery.getEnvelope().getDeliveryTag(), true);
-        // Reset map and batch_cnt
-        this.matchesMap = new HashMap<>();
-        this.statsMap = new HashMap<>();
-
-        batch_cnt[0] = 0;
+        this.batchUpdateOperation(delivery);
       };
 
       // No autoAck, to ensure that Consumer only acknowledges Queue after the message got processed succesfully.
       // Nolocal
       // IsNot exclusive. If exclusive, queues may only be accessed by the current connection. (But we want Another Consumer to access this queue as well)
       // server-generated consumerTag
-      channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {});
+      this.rmqChannel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {});
+
+
+      // Periodically Check if there are remaining NAcked msg (which are fewer than
+      // BATCH_UPDATE_SIZE and therefore cannot be written to DB), and write them to DB.
+//      new java.util.Timer().scheduleAtFixedRate(
+//          new java.util.TimerTask() {
+//            @Override
+//            public void run() {
+//              if (lastDeliveryTime !=null && (System.currentTimeMillis() - lastDeliveryTime) > 10000 &&
+//              lastNackDelivery != null) {
+//                // If this channel hasn't received msg from RMQ for more thatn 10s,
+//                // flush the remaining msgs to DB
+//                batchUpdateOperation(lastNackDelivery);
+//                System.out.println("==== Flushed Thread Name = "
+//                    + Thread.currentThread().getName() + " ====");
+//              }
+//            }
+//          }, 200000, 5000 // 10sec
+//      );
 
     } catch (IOException e) {
       Logger.getLogger(ConsumerThread.class.getName()).log(Level.SEVERE, null, e);
     }
   }
 
+
+  private void batchUpdateOperation(Delivery batchLastDelivery) {
+    try {
+      this.updateMatchesCollection(this.matchesCollection);
+      this.updateStatsCollection(this.statsCollection);
+      // Manual Acknowledgement in Batch
+      this.rmqChannel.basicAck(batchLastDelivery.getEnvelope().getDeliveryTag(), true);
+      // Reset map and batch_cnt
+      this.matchesMap = new HashMap<>();
+      this.statsMap = new HashMap<>();
+
+      this.batch_cnt[0] = 0;
+      this.lastNackDelivery = null;
+      System.out.println(
+          " ************** Batch Updated " + BATCH_UPDATE_SIZE + " to DB! Thread Name = "
+              + Thread.currentThread().getName() + " **************");
+    } catch (IOException e) {
+      Logger.getLogger(ConsumerThread.class.getName()).log(Level.SEVERE, null, e);
+    }
+  }
   private void updateMatchesCollection(MongoCollection<Document> collection) {
     List bulkOps = new ArrayList<>();
-    System.out.println("Matches map size:" + this.matchesMap.size()); //TODO!!! Check matchesMap size
+    System.out.println("Matches map size:" + this.matchesMap.size());
 
     // Edge case: if none of the swipe directions is right(<--> like <--> match).
     // then there is no match at all.
@@ -226,6 +210,7 @@ public class ConsumerThread implements Runnable{
   }
 
   private void updateStatsCollection(MongoCollection<Document> collection) {
+    System.out.println("!! Stats Map: " + this.statsMap.toString());
     List bulkOps = new ArrayList<>();
 
     for (Map.Entry<Integer, int[]> entry: this.statsMap.entrySet()) {

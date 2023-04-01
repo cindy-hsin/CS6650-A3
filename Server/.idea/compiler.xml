@@ -6,15 +6,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Consumer" />
         <module name="GetServlet" />
         <module name="Config" />
+        <module name="MatchConsumer" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Config" target="11" />
-      <module name="Consumer" target="11" />
       <module name="GetServlet" target="11" />
+      <module name="MatchConsumer" target="11" />
       <module name="PostServlet" target="11" />
       <module name="Server" target="11" />
     </bytecodeTargetLevel>

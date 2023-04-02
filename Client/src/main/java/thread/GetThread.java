@@ -106,7 +106,7 @@ public class GetThread extends AbsSendRequestThread {
 
         System.out.println(
             "GET: RETRY Request. Type: " + apiTypeStr + " userID:" + userId + "err: " + e.getCode()
-                + " " + e.getResponseBody());
+                + " " + e.getResponseBody() + e.getMessage());
         retry--;
         if (retry == 0) {
           endTime = System.currentTimeMillis();

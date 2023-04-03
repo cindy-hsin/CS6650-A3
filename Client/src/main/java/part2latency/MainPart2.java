@@ -20,7 +20,7 @@ public class MainPart2 {
 
   private static Long startPostTime, endPostTime;
 
-  public static void main(String[] args) throws InterruptedException, CsvExistException {
+  public static void main(String[] args) throws InterruptedException {
     CountDownLatch postLatch = new CountDownLatch(LoadTestConfig.NUM_THREADS);
     final AtomicInteger numSuccessfulPostReqs = new AtomicInteger(0);
     final AtomicInteger numFailedPostReqs = new AtomicInteger(0);
@@ -78,8 +78,6 @@ public class MainPart2 {
     // take the last list, WRITE TO CSV, and then mark endTime.
     // In this case, the endTime will be longer than the actual request-sending endTime, by a difference of
     // WRITE_ONE_LIST_TO_CSV TIME.
-
-    // TODO: Confirm: GetThread will terminate automatically, once all PostThreads terminate.
 
     getMetrics.updateRunningMetrics(getRecords);
 

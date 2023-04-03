@@ -33,10 +33,10 @@ public class GetThread extends AbsSendRequestThread {
   @Override
   public void run() {
     MatchesApi matchesApi = new MatchesApi(new ApiClient());
-    matchesApi.getApiClient().setBasePath(LoadTestConfig.GET_URL); //TODO: Change to Get Match servlet's url. Also change Post threads' url.
+    matchesApi.getApiClient().setBasePath(LoadTestConfig.GET_URL);
 
     StatsApi statsApi = new StatsApi(new ApiClient());
-    statsApi.getApiClient().setBasePath(LoadTestConfig.GET_URL); //TODO: Change to Get Stats servlet's url
+    statsApi.getApiClient().setBasePath(LoadTestConfig.GET_URL);
     System.out.println("Set base path");
 
     // Keep sending GET reqs until all PostThreads terminate. -> this.latch(which is the postLatch in Main)'s count == 0
@@ -63,7 +63,7 @@ public class GetThread extends AbsSendRequestThread {
 
   private Record sendSingleRequest(MatchesApi matchesApi, StatsApi statsApi, int apiType) {
     int retry = LoadTestConfig.MAX_RETRY;
-    String userId = String.valueOf(ThreadLocalRandom.current().nextInt(MIN_ID, MAX_USER_ID+1)); //TODO: userId range: verify with server side(DB side)
+    String userId = String.valueOf(ThreadLocalRandom.current().nextInt(MIN_ID, MAX_USER_ID+1));
 
     long startTime = System.currentTimeMillis();
     long endTime;
